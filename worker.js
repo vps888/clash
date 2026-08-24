@@ -1,5 +1,7 @@
 const CONFIG_KEY = 'sub.json';
+const DIRECT_RULES_KEY = 'direct-rules.txt';
 let cachedConfig = null;
+let cachedDirectRules = null;
 
 function quote(value) {
 	return JSON.stringify(String(value ?? ''));
@@ -27,6 +29,14 @@ function normalizeAdRule(rule) {
 	return `${parts[0]},${parts[1]},REJECT,no-resolve`;
 }
 
+function normalizeAdProviderRule(rule) {
+	const value = String(rule || '').trim();
+	if (!value || value.startsWith('#')) return '';
+	const parts = value.split(',').map(part => part.trim()).filter(Boolean);
+	if (parts.length < 2) return '';
+	return parts.slice(0, 2).join(',');
+}
+
 function normalizeConfig(source) {
 	if (source?.clash) return source;
 	const proxyServer = source?.server || source?.hostdare;
@@ -37,11 +47,12 @@ function normalizeConfig(source) {
 	const proxies = [serverProxy, ...(Array.isArray(source.static) ? source.static : []).filter(node => node?.server).map(node => buildStaticProxy(node, serverProxy.name))];
 	const proxyNames = proxies.map(proxy => proxy.name);
 	const adRules = (Array.isArray(source.adBlockRules) ? source.adBlockRules : []).map(normalizeAdRule).filter(Boolean);
-	const rules = [...adRules, 'GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
+	const rules = ['GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
 	const providers = Array.isArray(source.providers) ? source.providers : [];
 	const providerNames = providers.map(provider => provider?.name).filter(Boolean);
 	return {
 		enabled: true,
+		adRules,
 		clash: {
 			dns: String(source.dns || ''),
 			proxies,
@@ -53,6 +64,18 @@ function normalizeConfig(source) {
 			rules,
 		},
 	};
+}
+
+function renderRuleProvider(name, url, path) {
+	return [
+		`  ${name}:`,
+		'    type: http',
+		'    behavior: classical',
+		'    format: text',
+		`    url: ${quote(url)}`,
+		`    path: ${quote(path)}`,
+		'    interval: 86400',
+	].join('\n');
 }
 
 function renderProvider(provider) {
@@ -88,7 +111,7 @@ function renderGroup(group) {
 	return `  - {${parts.join(', ')}}`;
 }
 
-function renderClash(config) {
+function renderClash(config, { adProviderUrl = '', directProviderUrl = '' } = {}) {
 	const clash = config?.clash || {};
 	const lines = [
 		'mixed-port: 7890',
@@ -101,9 +124,31 @@ function renderClash(config) {
 	lines.push('proxies:', ...(clash.proxies || []).map(proxy => proxy.yaml).filter(Boolean), '');
 	const providers = (clash.proxyProviders || []).map(renderProvider).filter(Boolean);
 	if (providers.length > 0) lines.push('proxy-providers:', ...providers, '');
+	const ruleProviders = [
+		...(adProviderUrl ? [renderRuleProvider('ads', adProviderUrl, './rules/ads.txt')] : []),
+		...(directProviderUrl ? [renderRuleProvider('direct', directProviderUrl, './rules/direct.txt')] : []),
+	];
+	if (ruleProviders.length > 0) lines.push('rule-providers:', ...ruleProviders, '');
 	lines.push('proxy-groups:', ...(clash.groups || []).map(renderGroup).filter(Boolean), '');
-	lines.push('rules:', ...(clash.rules || []).map(rule => `  - ${rule}`), '');
+	const rules = [
+		...(adProviderUrl ? ['RULE-SET,ads,REJECT'] : []),
+		...(directProviderUrl ? ['RULE-SET,direct,国内直连'] : []),
+		...(clash.rules || []),
+	];
+	lines.push('rules:', ...rules.map(rule => `  - ${rule}`), '');
 	return `${lines.join('\n')}\n`;
+}
+
+function renderAdRules(config) {
+	const rules = (config?.adRules || []).map(normalizeAdProviderRule).filter(Boolean);
+	return `${rules.join('\n')}\n`;
+}
+
+function normalizeRuleText(raw) {
+	return String(raw || '')
+		.split(/\r?\n/)
+		.map(normalizeAdProviderRule)
+		.filter(Boolean);
 }
 
 async function loadConfig(env) {
@@ -113,6 +158,14 @@ async function loadConfig(env) {
 	if (!raw) throw new Error(`missing KV key ${CONFIG_KEY}`);
 	cachedConfig = normalizeConfig(JSON.parse(raw));
 	return cachedConfig;
+}
+
+async function loadDirectRules(env) {
+	if (cachedDirectRules !== null) return cachedDirectRules;
+	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
+	const raw = await env.KV.get(DIRECT_RULES_KEY);
+	cachedDirectRules = normalizeRuleText(raw || '');
+	return cachedDirectRules;
 }
 
 export default {
@@ -125,8 +178,32 @@ export default {
 		}
 		if (request.method !== 'GET') return new Response('Method Not Allowed\n', { status: 405 });
 		try {
+			if (url.pathname === '/rules/direct.txt') {
+				const directRules = await loadDirectRules(env);
+				return new Response(`${directRules.join('\n')}\n`, {
+					headers: {
+						'content-type': 'text/plain; charset=utf-8',
+						'cache-control': 'public, max-age=300',
+					},
+				});
+			}
 			const config = await loadConfig(env);
-			return new Response(renderClash(config), {
+			if (url.pathname === '/rules/ads.txt') {
+				return new Response(renderAdRules(config), {
+					headers: {
+						'content-type': 'text/plain; charset=utf-8',
+						'cache-control': 'public, max-age=300',
+					},
+				});
+			}
+			const adProviderUrl = config?.adRules?.length
+				? new URL(`/rules/ads.txt?token=${encodeURIComponent(expectedToken)}`, request.url).toString()
+				: '';
+			const directRules = await loadDirectRules(env);
+			const directProviderUrl = directRules.length
+				? new URL(`/rules/direct.txt?token=${encodeURIComponent(expectedToken)}`, request.url).toString()
+				: '';
+			return new Response(renderClash(config, { adProviderUrl, directProviderUrl }), {
 				headers: {
 					'content-type': 'text/yaml; charset=utf-8',
 					'cache-control': 'no-store',

@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
 const config = JSON.parse(readFileSync('sub.json', 'utf8'));
+const directRulesPath = 'direct-rules.txt';
 const required = ['WORKER_NAME', 'CUSTOM_DOMAIN'];
 for (const key of required) {
 	if (!String(process.env[key] || '').trim()) throw new Error(`${key} is required`);
@@ -49,6 +50,7 @@ writeFileSync('wrangler.local.toml', [
 ].join('\n'));
 
 run(['kv', 'key', 'put', 'sub.json', '--path', 'sub.json', '--namespace-id', namespaceId, '--remote']);
+run(['kv', 'key', 'put', 'direct-rules.txt', '--path', directRulesPath, '--namespace-id', namespaceId, '--remote']);
 const token = randomBytes(24).toString('hex');
 run(['secret', 'put', 'SUB_TOKEN', '--config', 'wrangler.local.toml'], `${token}\n`);
 run(['deploy', '--config', 'wrangler.local.toml']);
