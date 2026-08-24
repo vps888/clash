@@ -18,7 +18,7 @@ chmod +x scripts/setup.sh
 sub.json.template → sub.json
 ```
 
-编辑 `sub.json`，填写自己的 HostDare、VLESS UUID 和静态住宅代理信息，然后再次运行：
+编辑 `sub.json`，填写自建的三网优化+静态住宅IP信息，然后再次运行：
 
 ```bash
 ./scripts/setup.sh
@@ -42,10 +42,10 @@ https://你的域名/sub?token=自动生成的Token
 
 模板中需要修改：
 
-- `hostdare.server`：HostDare 服务器地址；
-- `hostdare.uuid`：自己的 VLESS UUID；
-- `hostdare.publicKey`：Reality 公钥；
-- `hostdare.servername`：Reality SNI；
+- `server.server`：自建代理服务器地址；
+- `server.uuid`：自己的 VLESS UUID；
+- `server.publicKey`：Reality 公钥；
+- `server.servername`：Reality SNI；
 - `static`：静态住宅 IP、端口、用户名和密码。
 
 可以在 `static` 数组中添加多个静态住宅出口。密码、UUID 和静态代理信息只保存在本地 `sub.json`，不会提交到 GitHub。

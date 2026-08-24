@@ -4,7 +4,7 @@ set -euo pipefail
 if [[ ! -f sub.json ]]; then
 	cp sub.json.template sub.json
 	chmod 600 sub.json
-	echo '已创建 sub.json。请编辑其中的 HostDare、UUID、静态住宅 IP 和代理账号密码，然后重新运行：'
+	echo '已创建 sub.json。请编辑其中的自建代理服务器、UUID、静态住宅 IP 和代理账号密码，然后重新运行：'
 	echo '  ./scripts/setup.sh'
 	exit 0
 fi

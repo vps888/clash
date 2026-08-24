@@ -8,8 +8,9 @@ const required = ['WORKER_NAME', 'CUSTOM_DOMAIN'];
 for (const key of required) {
 	if (!String(process.env[key] || '').trim()) throw new Error(`${key} is required`);
 }
-if (!config.hostdare?.server || !config.hostdare?.uuid || !config.hostdare?.publicKey || !config.hostdare?.servername) {
-	throw new Error('sub.json 中 hostdare.server、uuid、publicKey、servername 不能为空');
+const proxyServer = config.server || config.hostdare;
+if (!proxyServer?.server || !proxyServer?.uuid || !proxyServer?.publicKey || !proxyServer?.servername) {
+	throw new Error('sub.json 中 server.server、uuid、publicKey、servername 不能为空');
 }
 if (!Array.isArray(config.static) || config.static.length === 0) {
 	throw new Error('sub.json 至少需要一个 static 节点');

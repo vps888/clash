@@ -1,8 +1,8 @@
 {
-  "hostdare": {
+  "server": {
     "name": "US-HD",
     "flag": "🇺🇸",
-    "server": "YOUR-HOSTDARE-SERVER",
+    "server": "YOUR-SERVER-ADDRESS",
     "port": 443,
     "uuid": "YOUR-VLESS-UUID",
     "servername": "addons.mozilla.org",

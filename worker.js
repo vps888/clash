@@ -29,12 +29,12 @@ function normalizeAdRule(rule) {
 
 function normalizeConfig(source) {
 	if (source?.clash) return source;
-	const hostdare = source?.hostdare;
-	if (!hostdare?.server || !hostdare?.uuid || !hostdare?.publicKey || !hostdare?.servername) {
-		throw new Error('sub.json requires hostdare.server, uuid, publicKey and servername');
+	const proxyServer = source?.server || source?.hostdare;
+	if (!proxyServer?.server || !proxyServer?.uuid || !proxyServer?.publicKey || !proxyServer?.servername) {
+		throw new Error('sub.json requires server.server, uuid, publicKey and servername');
 	}
-	const hostdareProxy = buildVlessProxy(hostdare);
-	const proxies = [hostdareProxy, ...(Array.isArray(source.static) ? source.static : []).filter(node => node?.server).map(node => buildStaticProxy(node, hostdareProxy.name))];
+	const serverProxy = buildVlessProxy(proxyServer);
+	const proxies = [serverProxy, ...(Array.isArray(source.static) ? source.static : []).filter(node => node?.server).map(node => buildStaticProxy(node, serverProxy.name))];
 	const proxyNames = proxies.map(proxy => proxy.name);
 	const adRules = (Array.isArray(source.adBlockRules) ? source.adBlockRules : []).map(normalizeAdRule).filter(Boolean);
 	const rules = [...adRules, 'GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
