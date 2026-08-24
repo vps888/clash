@@ -18,7 +18,7 @@ chmod +x scripts/setup.sh
 sub.json.template → sub.json
 ```
 
-编辑 `sub.json`，填写自建的三网优化+静态住宅IP信息，然后再次运行：
+编辑 `sub.json`，填写第一跳代理服务器和静态住宅 IP 信息，然后再次运行：
 
 ```bash
 ./scripts/setup.sh
@@ -42,7 +42,7 @@ https://你的域名/sub?token=自动生成的Token
 
 模板中需要修改：
 
-- `server.server`：自建代理服务器地址；
+- `server.server`：第一跳代理服务器地址，建议使用三网优化的代理服务器；
 - `server.uuid`：自己的 VLESS UUID；
 - `server.publicKey`：Reality 公钥；
 - `server.servername`：Reality SNI；
@@ -55,7 +55,7 @@ https://你的域名/sub?token=自动生成的Token
 `server` 和 `static` 采用链式代理方式：
 
 ```text
-Clash 客户端 → 自建代理服务器（server）→ 静态住宅 IP（static）→ 目标网站
+Clash 客户端 → 第一跳代理服务器（server）→ 静态住宅 IP（static）→ 目标网站
 ```
 
 其中：
@@ -63,7 +63,7 @@ Clash 客户端 → 自建代理服务器（server）→ 静态住宅 IP（stati
 - `server` 是第一跳 VLESS Reality 服务器，负责接收客户端连接；
 - `static` 是第二跳 SOCKS5 静态住宅出口；
 - 三网优化策略组中的静态住宅节点都会先经过 `server`，再从对应的静态住宅 IP 出口访问目标网站；
-- 只选择自建服务器节点时，请求不会经过 `static`；
+- 只选择第一跳代理服务器节点时，请求不会经过 `static`；
 - 添加多个 `static` 节点后，可以在 `三网优化` 组中切换不同的静态住宅出口。
 
 订阅只有两个策略组：
