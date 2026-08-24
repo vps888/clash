@@ -1,4 +1,4 @@
-# 独立 Clash 订阅 Worker
+# 极简 Clash 订阅一键部署 CF Worker
 
 ## 一键部署
 
