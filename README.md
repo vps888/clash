@@ -50,6 +50,22 @@ https://你的域名/sub?token=自动生成的Token
 
 可以在 `static` 数组中添加多个静态住宅出口。密码、UUID 和静态代理信息只保存在本地 `sub.json`，不会提交到 GitHub。
 
+### 代理链路
+
+`server` 和 `static` 采用链式代理方式：
+
+```text
+Clash 客户端 → 自建代理服务器（server）→ 静态住宅 IP（static）→ 目标网站
+```
+
+其中：
+
+- `server` 是第一跳 VLESS Reality 服务器，负责接收客户端连接；
+- `static` 是第二跳 SOCKS5 静态住宅出口；
+- 三网优化策略组中的静态住宅节点都会先经过 `server`，再从对应的静态住宅 IP 出口访问目标网站；
+- 只选择自建服务器节点时，请求不会经过 `static`；
+- 添加多个 `static` 节点后，可以在 `三网优化` 组中切换不同的静态住宅出口。
+
 订阅只有两个策略组：
 
 ```text
