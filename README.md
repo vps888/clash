@@ -43,7 +43,7 @@ https://你的域名/sub?token=自动生成的Token
 模板中需要修改：
 
 - `server.server`：第一跳代理服务器地址，建议使用三网优化的代理服务器；
-- `server.uuid`：自己的 VLESS UUID；
+- `server.uuid`：第一跳代理服务器对应的 VLESS UUID；
 - `server.publicKey`：Reality 公钥；
 - `server.servername`：Reality SNI；
 - `static`：静态住宅 IP、端口、用户名和密码。
