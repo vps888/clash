@@ -21,6 +21,5 @@
     }
   ],
   "providers": [],
-  "adBlockRules": [],
   "dns": "dns:\n  enable: true\n  ipv6: false\n  enhanced-mode: fake-ip\n  fake-ip-range: 198.18.0.1/16\n  nameserver:\n    - https://1.1.1.1/dns-query\n    - https://8.8.8.8/dns-query"
 }

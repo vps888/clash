@@ -2,6 +2,7 @@
 set -euo pipefail
 
 CONFIG_FILE="${CONFIG_FILE:-sub.json}"
+AD_RULES_FILE="${AD_RULES_FILE:-ad-rules.txt}"
 DIRECT_RULES_FILE="${DIRECT_RULES_FILE:-direct-rules.txt}"
 WRANGLER_CONFIG="${WRANGLER_CONFIG:-wrangler.local.toml}"
 KV_KEY="${KV_KEY:-sub.json}"
@@ -24,6 +25,7 @@ Options:
 
 Environment overrides:
   CONFIG_FILE       Local private KV JSON (default: sub.json)
+  AD_RULES_FILE     Local ad rules (default: ad-rules.txt)
   DIRECT_RULES_FILE Local domestic direct rules (default: direct-rules.txt)
   WRANGLER_CONFIG   Wrangler config path (default: wrangler.local.toml)
   KV_NAMESPACE_ID   Override the KV namespace ID from wrangler.toml
@@ -74,11 +76,20 @@ if [[ "$SKIP_UPLOAD" == false ]]; then
 	fi
 	if [[ ! -f "$DIRECT_RULES_FILE" ]]; then
 		echo "Missing direct rules file: $DIRECT_RULES_FILE" >&2
-		echo "Copy direct-rules.txt.template to direct-rules.txt, or use --skip-upload." >&2
+		echo "Create direct-rules.txt, or use --skip-upload." >&2
+		exit 1
+	fi
+	if [[ ! -f "$AD_RULES_FILE" ]]; then
+		echo "Missing ad rules file: $AD_RULES_FILE" >&2
+		echo "Create ad-rules.txt, or use --skip-upload." >&2
 		exit 1
 	fi
 	"${WRANGLER[@]}" kv key put "$KV_KEY" \
 		--path "$CONFIG_FILE" \
+		--namespace-id "$NAMESPACE_ID" \
+		--remote
+	"${WRANGLER[@]}" kv key put "ad-rules.txt" \
+		--path "$AD_RULES_FILE" \
 		--namespace-id "$NAMESPACE_ID" \
 		--remote
 	"${WRANGLER[@]}" kv key put "direct-rules.txt" \

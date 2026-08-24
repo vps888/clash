@@ -1,0 +1,5 @@
+# 广告拦截规则：每行一条 Clash/Mihomo 规则。
+# 这些规则会匹配到 REJECT 策略，不会增加新的策略组。
+# 示例：
+# DOMAIN-SUFFIX,example-ad.com
+# DOMAIN-KEYWORD,advert

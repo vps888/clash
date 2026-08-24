@@ -1,6 +1,8 @@
 const CONFIG_KEY = 'sub.json';
+const AD_RULES_KEY = 'ad-rules.txt';
 const DIRECT_RULES_KEY = 'direct-rules.txt';
 let cachedConfig = null;
+let cachedAdRules = null;
 let cachedDirectRules = null;
 
 function quote(value) {
@@ -139,8 +141,7 @@ function renderClash(config, { adProviderUrl = '', directProviderUrl = '' } = {}
 	return `${lines.join('\n')}\n`;
 }
 
-function renderAdRules(config) {
-	const rules = (config?.adRules || []).map(normalizeAdProviderRule).filter(Boolean);
+function renderAdRules(rules) {
 	return `${rules.join('\n')}\n`;
 }
 
@@ -168,6 +169,18 @@ async function loadDirectRules(env) {
 	return cachedDirectRules;
 }
 
+async function loadAdRules(env, config) {
+	if (cachedAdRules !== null) return cachedAdRules;
+	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
+	const raw = await env.KV.get(AD_RULES_KEY);
+	// Older deployments stored adBlockRules in sub.json. Keep that as a fallback
+	// when the separate file is missing or still empty during migration.
+	const fileRules = raw === null || raw === undefined ? [] : normalizeRuleText(raw);
+	const legacyRules = (config?.adRules || []).map(normalizeAdProviderRule).filter(Boolean);
+	cachedAdRules = fileRules.length > 0 ? fileRules : legacyRules;
+	return cachedAdRules;
+}
+
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url);
@@ -188,15 +201,16 @@ export default {
 				});
 			}
 			const config = await loadConfig(env);
+			const adRules = await loadAdRules(env, config);
 			if (url.pathname === '/rules/ads.txt') {
-				return new Response(renderAdRules(config), {
+				return new Response(renderAdRules(adRules), {
 					headers: {
 						'content-type': 'text/plain; charset=utf-8',
 						'cache-control': 'public, max-age=300',
 					},
 				});
 			}
-			const adProviderUrl = config?.adRules?.length
+			const adProviderUrl = adRules.length
 				? new URL(`/rules/ads.txt?token=${encodeURIComponent(expectedToken)}`, request.url).toString()
 				: '';
 			const directRules = await loadDirectRules(env);

@@ -28,7 +28,7 @@ sub.json.template → sub.json
 
 1. 创建 KV namespace；
 2. 生成本地 Wrangler 配置；
-3. 上传 `sub.json` 和 `direct-rules.txt` 到 KV；
+3. 上传 `sub.json`、`ad-rules.txt` 和 `direct-rules.txt` 到 KV；
 4. 自动生成并设置 `SUB_TOKEN`；
 5. 部署 Worker 到填写的域名。
 
@@ -73,18 +73,16 @@ Clash 客户端 → 第一跳代理服务器（server）→ 静态住宅 IP（st
 三网优化
 ```
 
-广告规则可通过 `adBlockRules` 添加，格式例如：
+广告规则单独保存在 `ad-rules.txt`，可以按需编辑。每行是一条 Clash/Mihomo 规则，格式例如：
 
-```json
-"adBlockRules": [
-  "DOMAIN-SUFFIX,example-ad.com",
-  "DOMAIN-KEYWORD,advert"
-]
+```text
+DOMAIN-SUFFIX,example-ad.com
+DOMAIN-KEYWORD,advert
 ```
 
 这些规则会自动转换为 `REJECT`，不会出现第三个策略组。
 
-广告规则不会直接展开到主订阅中。Worker 会生成一个 `rule-providers`，由客户端单独加载：
+广告规则和国内直连规则都不会直接展开到主订阅中。Worker 会生成 `rule-providers`，由客户端单独加载：
 
 ```text
 主订阅：/sub?token=...
@@ -93,6 +91,8 @@ Clash 客户端 → 第一跳代理服务器（server）→ 静态住宅 IP（st
 ```
 
 客户端会缓存这些规则，并按每天一次的周期检查更新。这样可以明显减小主订阅的配置大小，同时仍然可以分别维护广告规则和国内直连规则。Clash Meta、Mihomo、Clash Verge Rev 等支持 `rule-providers` 的客户端可以使用；过旧的 Clash 内核可能不支持。
+
+旧版本如果把广告规则写在 `sub.json` 的 `adBlockRules` 字段中，Worker 仍会兼容读取。迁移期间，如果 `ad-rules.txt` 为空，会继续使用旧字段中的规则；文件中有有效规则后，则以该文件为准。
 
 ### 国内直连规则
 
@@ -118,6 +118,7 @@ Worker 会通过 `/rules/direct.txt` 单独提供这份规则，主订阅只引�
 worker.js              Worker 入口
 sub.json.template      配置模板，可提交
 sub.json               私有配置，不提交
+ad-rules.txt            广告规则，可直接编辑
 direct-rules.txt        国内直连规则，可直接编辑
 scripts/setup.sh       一键初始化和部署
 scripts/deploy.sh      已有配置时重复部署
