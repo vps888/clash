@@ -113,16 +113,7 @@ UUID 和静态代理账号密码属于私有信息，不要写进 public 仓库�
 
 当前仓库只负责运行 Worker，不包含私有配置生成器。可以在本地使用自己的配置生成工具生成 `optimized-subscription.json`，然后上传到 KV。不能把 `custom-subscription.private.json` 或生成后的 JSON 提交到 GitHub。
 
-### 5. 上传自己的 KV 配置
-
-```bash
-npx wrangler kv key put optimized-subscription.json \
-  --path optimized-subscription.json \
-  --namespace-id "自己的KV_NAMESPACE_ID" \
-  --remote
-```
-
-### 6. 设置订阅 Token
+### 5. 设置订阅 Token
 
 `SUB_TOKEN` 只用于保护订阅地址，与 VLESS UUID 不是一回事：
 
@@ -132,7 +123,49 @@ npx wrangler secret put SUB_TOKEN
 
 输入一个随机长字符串即可。
 
-### 7. 部署 Worker
+### 6. 使用部署脚本
+
+仓库提供了 [scripts/deploy.sh](scripts/deploy.sh)，它会先把本地 `optimized-subscription.json` 上传到 KV，再部署 Worker：
+
+```bash
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
+
+只设置 Token：
+
+```bash
+./scripts/deploy.sh --set-token
+```
+
+只部署 Worker、不上传 KV：
+
+```bash
+./scripts/deploy.sh --skip-upload
+```
+
+只检查 Worker 打包：
+
+```bash
+./scripts/deploy.sh --dry-run
+```
+
+脚本默认读取：
+
+```text
+optimized-subscription.json
+wrangler.toml
+```
+
+也可以通过环境变量覆盖路径：
+
+```bash
+CONFIG_FILE=my-subscription.json ./scripts/deploy.sh
+```
+
+脚本不会生成节点配置。使用者需要先在本地生成自己的 `optimized-subscription.json`，再执行部署脚本。
+
+### 7. 手动部署（可选）
 
 ```bash
 npx wrangler deploy
