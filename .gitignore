@@ -1,0 +1,7 @@
+.wrangler/
+wrangler.local.toml
+*.local.toml
+.dev.vars
+*.log
+optimized-subscription.json
+custom-subscription.private.json

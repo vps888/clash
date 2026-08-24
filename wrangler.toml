@@ -1,0 +1,12 @@
+name = "edgetunnel-optimized"
+main = "worker.js"
+compatibility_date = "2025-11-04"
+keep_vars = true
+
+routes = [
+  { pattern = "vps888.qzz.io", custom_domain = true }
+]
+
+[[kv_namespaces]]
+binding = "KV"
+id = "a9be71d039dc4f4ea77d273f97f6911b"
