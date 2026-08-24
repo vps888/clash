@@ -1,6 +1,10 @@
-# 国内直连规则：每行一条 Clash/Mihomo 规则。
-# 这些规则会匹配到“国内直连”策略组，随后才执行 GEOIP,CN 兜底规则。
-# 示例：
-# DOMAIN-SUFFIX,example.cn
-# DOMAIN-KEYWORD,intranet
-# IP-CIDR,10.0.0.0/8
+DOMAIN,archive.ubuntu.com
+DOMAIN,deb.debian.org
+DOMAIN,ports.ubuntu.com
+DOMAIN,security.ubuntu.com
+DOMAIN-KEYWORD,huawei
+DOMAIN-SUFFIX,aicorp.work
+DOMAIN-SUFFIX,debian.org
+DOMAIN-SUFFIX,iproyal.com
+DOMAIN-SUFFIX,ubuntu.com
+DOMAIN-SUFFIX,yibuapi.com

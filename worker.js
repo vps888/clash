@@ -22,15 +22,6 @@ function buildStaticProxy(node, dialerName) {
 	return { name, yaml };
 }
 
-function normalizeAdRule(rule) {
-	const value = String(rule || '').trim();
-	if (!value || value.startsWith('#')) return '';
-	const parts = value.split(',').map(part => part.trim()).filter(Boolean);
-	if (parts.length < 2) return '';
-	if (parts.length === 2) return `${parts.join(',')},REJECT,no-resolve`;
-	return `${parts[0]},${parts[1]},REJECT,no-resolve`;
-}
-
 function normalizeAdProviderRule(rule) {
 	const value = String(rule || '').trim();
 	if (!value || value.startsWith('#')) return '';
@@ -48,13 +39,11 @@ function normalizeConfig(source) {
 	const serverProxy = buildVlessProxy(proxyServer);
 	const proxies = [serverProxy, ...(Array.isArray(source.static) ? source.static : []).filter(node => node?.server).map(node => buildStaticProxy(node, serverProxy.name))];
 	const proxyNames = proxies.map(proxy => proxy.name);
-	const adRules = (Array.isArray(source.adBlockRules) ? source.adBlockRules : []).map(normalizeAdRule).filter(Boolean);
 	const rules = ['GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
 	const providers = Array.isArray(source.providers) ? source.providers : [];
 	const providerNames = providers.map(provider => provider?.name).filter(Boolean);
 	return {
 		enabled: true,
-		adRules,
 		clash: {
 			dns: String(source.dns || ''),
 			proxies,
@@ -169,15 +158,11 @@ async function loadDirectRules(env) {
 	return cachedDirectRules;
 }
 
-async function loadAdRules(env, config) {
+async function loadAdRules(env) {
 	if (cachedAdRules !== null) return cachedAdRules;
 	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
 	const raw = await env.KV.get(AD_RULES_KEY);
-	// Older deployments stored adBlockRules in sub.json. Keep that as a fallback
-	// when the separate file is missing or still empty during migration.
-	const fileRules = raw === null || raw === undefined ? [] : normalizeRuleText(raw);
-	const legacyRules = (config?.adRules || []).map(normalizeAdProviderRule).filter(Boolean);
-	cachedAdRules = fileRules.length > 0 ? fileRules : legacyRules;
+	cachedAdRules = normalizeRuleText(raw || '');
 	return cachedAdRules;
 }
 
@@ -201,7 +186,7 @@ export default {
 				});
 			}
 			const config = await loadConfig(env);
-			const adRules = await loadAdRules(env, config);
+			const adRules = await loadAdRules(env);
 			if (url.pathname === '/rules/ads.txt') {
 				return new Response(renderAdRules(adRules), {
 					headers: {

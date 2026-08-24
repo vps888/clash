@@ -92,8 +92,6 @@ DOMAIN-KEYWORD,advert
 
 客户端会缓存这些规则，并按每天一次的周期检查更新。这样可以明显减小主订阅的配置大小，同时仍然可以分别维护广告规则和国内直连规则。Clash Meta、Mihomo、Clash Verge Rev 等支持 `rule-providers` 的客户端可以使用；过旧的 Clash 内核可能不支持。
 
-旧版本如果把广告规则写在 `sub.json` 的 `adBlockRules` 字段中，Worker 仍会兼容读取。迁移期间，如果 `ad-rules.txt` 为空，会继续使用旧字段中的规则；文件中有有效规则后，则以该文件为准。
-
 ### 国内直连规则
 
 国内直连规则单独保存在 `direct-rules.txt`，可以按需编辑。文件中的每一行是一条 Clash/Mihomo 规则，例如：
