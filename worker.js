@@ -1,8 +1,58 @@
-const CONFIG_KEY = 'optimized-subscription.json';
+const CONFIG_KEY = 'sub.json';
 let cachedConfig = null;
 
 function quote(value) {
 	return JSON.stringify(String(value ?? ''));
+}
+
+function buildVlessProxy(node) {
+	const flag = node.flag || '🇺🇸';
+	const name = `${flag} ${node.name || 'US-HD'}-${node.server}`;
+	const yaml = `  - {name: ${quote(name)}, type: vless, server: ${quote(node.server)}, port: ${Number(node.port) || 443}, uuid: ${quote(node.uuid)}, network: tcp, tls: true, udp: true, flow: xtls-rprx-vision, servername: ${quote(node.servername)}, client-fingerprint: ${quote(node.clientFingerprint || 'firefox')}, reality-opts: {public-key: ${quote(node.publicKey)}, short-id: ${quote(node.shortId || '')}}}`;
+	return { name, yaml };
+}
+
+function buildStaticProxy(node, dialerName) {
+	const name = `${node.flag || '🇺🇸'} ${node.name || 'US-Static-via-HD'}`;
+	const yaml = `  - {name: ${quote(name)}, type: socks5, server: ${quote(node.server)}, port: ${Number(node.port) || 12324}, username: ${quote(node.username)}, password: ${quote(node.password)}, dialer-proxy: ${quote(dialerName)}}`;
+	return { name, yaml };
+}
+
+function normalizeAdRule(rule) {
+	const value = String(rule || '').trim();
+	if (!value || value.startsWith('#')) return '';
+	const parts = value.split(',').map(part => part.trim()).filter(Boolean);
+	if (parts.length < 2) return '';
+	if (parts.length === 2) return `${parts.join(',')},REJECT,no-resolve`;
+	return `${parts[0]},${parts[1]},REJECT,no-resolve`;
+}
+
+function normalizeConfig(source) {
+	if (source?.clash) return source;
+	const hostdare = source?.hostdare;
+	if (!hostdare?.server || !hostdare?.uuid || !hostdare?.publicKey || !hostdare?.servername) {
+		throw new Error('sub.json requires hostdare.server, uuid, publicKey and servername');
+	}
+	const hostdareProxy = buildVlessProxy(hostdare);
+	const proxies = [hostdareProxy, ...(Array.isArray(source.static) ? source.static : []).filter(node => node?.server).map(node => buildStaticProxy(node, hostdareProxy.name))];
+	const proxyNames = proxies.map(proxy => proxy.name);
+	const adRules = (Array.isArray(source.adBlockRules) ? source.adBlockRules : []).map(normalizeAdRule).filter(Boolean);
+	const rules = [...adRules, 'GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
+	const providers = Array.isArray(source.providers) ? source.providers : [];
+	const providerNames = providers.map(provider => provider?.name).filter(Boolean);
+	return {
+		enabled: true,
+		clash: {
+			dns: String(source.dns || ''),
+			proxies,
+			proxyProviders: providers,
+			groups: [
+				{ name: '国内直连', type: 'select', proxies: ['DIRECT'] },
+				{ name: '三网优化', type: 'select', proxies: proxyNames, use: providerNames },
+			],
+			rules,
+		},
+	};
 }
 
 function renderProvider(provider) {
@@ -61,7 +111,7 @@ async function loadConfig(env) {
 	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
 	const raw = await env.KV.get(CONFIG_KEY);
 	if (!raw) throw new Error(`missing KV key ${CONFIG_KEY}`);
-	cachedConfig = JSON.parse(raw);
+	cachedConfig = normalizeConfig(JSON.parse(raw));
 	return cachedConfig;
 }
 

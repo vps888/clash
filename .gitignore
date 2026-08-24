@@ -3,5 +3,6 @@ wrangler.local.toml
 *.local.toml
 .dev.vars
 *.log
+sub.json
 optimized-subscription.json
 custom-subscription.private.json

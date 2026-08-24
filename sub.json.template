@@ -1,0 +1,26 @@
+{
+  "hostdare": {
+    "name": "US-HD",
+    "flag": "🇺🇸",
+    "server": "YOUR-HOSTDARE-SERVER",
+    "port": 443,
+    "uuid": "YOUR-VLESS-UUID",
+    "servername": "addons.mozilla.org",
+    "publicKey": "YOUR-REALITY-PUBLIC-KEY",
+    "shortId": "",
+    "clientFingerprint": "firefox"
+  },
+  "static": [
+    {
+      "name": "US-Static161-via-HD",
+      "flag": "🇺🇸",
+      "server": "YOUR-STATIC-IP",
+      "port": 12324,
+      "username": "YOUR-SOCKS5-USERNAME",
+      "password": "YOUR-SOCKS5-PASSWORD"
+    }
+  ],
+  "providers": [],
+  "adBlockRules": [],
+  "dns": "dns:\n  enable: true\n  ipv6: false\n  enhanced-mode: fake-ip\n  fake-ip-range: 198.18.0.1/16\n  nameserver:\n    - https://1.1.1.1/dns-query\n    - https://8.8.8.8/dns-query"
+}

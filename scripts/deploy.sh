@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONFIG_FILE="${CONFIG_FILE:-optimized-subscription.json}"
-WRANGLER_CONFIG="${WRANGLER_CONFIG:-wrangler.toml}"
-KV_KEY="${KV_KEY:-optimized-subscription.json}"
+CONFIG_FILE="${CONFIG_FILE:-sub.json}"
+WRANGLER_CONFIG="${WRANGLER_CONFIG:-wrangler.local.toml}"
+KV_KEY="${KV_KEY:-sub.json}"
 WRANGLER=(npx wrangler)
+
+if [[ ! -f "$WRANGLER_CONFIG" && "$WRANGLER_CONFIG" == "wrangler.local.toml" && -f wrangler.toml ]]; then
+	WRANGLER_CONFIG=wrangler.toml
+fi
 
 usage() {
 	cat <<'EOF'
@@ -18,8 +22,8 @@ Options:
   -h, --help     Show this help
 
 Environment overrides:
-  CONFIG_FILE       Local generated KV JSON (default: optimized-subscription.json)
-  WRANGLER_CONFIG   Wrangler config path (default: wrangler.toml)
+  CONFIG_FILE       Local private KV JSON (default: sub.json)
+  WRANGLER_CONFIG   Wrangler config path (default: wrangler.local.toml)
   KV_NAMESPACE_ID   Override the KV namespace ID from wrangler.toml
 EOF
 }
