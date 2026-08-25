@@ -10,9 +10,9 @@
 Clash 客户端 → 第一跳代理服务器（VLESS Reality）→ 静态住宅 IP（SOCKS5）→ 目标网站
 ```
 
-只选择第一跳节点时，不经过静态住宅代理。订阅只有两个策略组：`国内直连` 和 `三网优化`。
+只选择第一跳节点时，不经过静态住宅代理。订阅有三个策略组：`国内直连`、`三网优化` 和 `流媒体`。
 
-广告规则、国内直连规则通过 `rule-providers` 单独加载，不会撑大主订阅。
+广告规则、国内直连规则和流媒体规则通过 `rule-providers` 单独加载，不会撑大主订阅。
 
 ## 部署
 
@@ -58,6 +58,7 @@ https://你的域名/sub?token=自动生成的Token
 
 - `ad-rules.txt`：广告拦截规则；
 - `direct-rules.txt`：自定义国内直连规则。
+- `streaming-rules.txt`：流媒体和 Telegram 规则。
 
 `sub.json`、Token 和代理账号密码不会提交到 GitHub。
 

@@ -65,15 +65,22 @@ IP-CIDR,10.0.0.0/8
 
 自定义规则先匹配，之后还有内置的 `GEOIP,CN` 规则作为兜底。
 
-Worker 提供三个地址：
+### 流媒体规则
+
+`streaming-rules.txt` 默认包含 YouTube、Telegram、Netflix、Disney+、Max、Prime Video、Spotify 和 Twitch。可以按需添加或删除域名。
+
+这些域名会进入 `流媒体` 策略组；该组和 `三网优化` 使用相同的第一跳、静态住宅及私有订阅节点。Telegram 的部分连接可能使用固定 IP，单靠域名规则不能覆盖所有情况。
+
+Worker 提供四个地址：
 
 ```text
 /sub?token=...
 /rules/ads.txt?token=...
 /rules/direct.txt?token=...
+/rules/streaming.txt?token=...
 ```
 
-主订阅只引用两个 `rule-providers`，客户端会单独缓存并定期更新规则。需要 Clash Meta、Mihomo、Clash Verge Rev 等支持 `rule-providers` 的内核。
+主订阅只引用三个 `rule-providers`，客户端会单独缓存并定期更新规则。需要 Clash Meta、Mihomo、Clash Verge Rev 等支持 `rule-providers` 的内核。
 
 ## 4. DNS
 
@@ -141,6 +148,7 @@ sub.json.template      私有配置模板
 sub.json               本地敏感配置，不提交
 ad-rules.txt           广告规则
 direct-rules.txt       国内直连规则
+streaming-rules.txt    流媒体规则
 scripts/setup.sh       首次部署
 scripts/deploy.sh      更新部署
 wrangler.toml          公共占位配置
