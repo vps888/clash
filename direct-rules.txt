@@ -62,6 +62,7 @@ DOMAIN-SUFFIX,gitcode.com
 DOMAIN-SUFFIX,godic.net
 DOMAIN-SUFFIX,gtimg.com
 DOMAIN-SUFFIX,hdslb.com
+DOMAIN-SUFFIX,hicloud.com
 DOMAIN-SUFFIX,hongxiu.com
 DOMAIN-SUFFIX,hxcdn.net
 DOMAIN-SUFFIX,iciba.com
