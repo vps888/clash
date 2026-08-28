@@ -47,6 +47,7 @@ DOMAIN-SUFFIX,douban.com
 DOMAIN-SUFFIX,doubanio.com
 DOMAIN-SUFFIX,duokan.com
 DOMAIN-SUFFIX,easou.com
+DOMAIN-SUFFIX,edge.apple
 DOMAIN-SUFFIX,ele.me
 DOMAIN-SUFFIX,feishu.cn
 DOMAIN-SUFFIX,feishucdn.com
@@ -75,6 +76,7 @@ DOMAIN-SUFFIX,lecloud.com
 DOMAIN-SUFFIX,lemicp.com
 DOMAIN-SUFFIX,licdn.com
 DOMAIN-SUFFIX,luoo.net
+DOMAIN-SUFFIX,me.com
 DOMAIN-SUFFIX,meituan.com
 DOMAIN-SUFFIX,meituan.net
 DOMAIN-SUFFIX,mi.com
@@ -112,6 +114,7 @@ DOMAIN-SUFFIX,segmentfault.com
 DOMAIN-SUFFIX,sogou.com
 DOMAIN-SUFFIX,snssdk.com
 DOMAIN-SUFFIX,tencent.com
+DOMAIN-SUFFIX,toutiao.com
 DOMAIN-SUFFIX,toutiaoimg.com
 DOMAIN-SUFFIX,toutiaostatic.com
 DOMAIN-SUFFIX,ubuntu.com
