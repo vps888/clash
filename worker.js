@@ -7,6 +7,18 @@ let cachedAdRules = null;
 let cachedDirectRules = null;
 let cachedStreamingRules = null;
 
+// Keep the most important domestic services direct even if a KV rule upload
+// is temporarily unavailable. The generated rule provider still remains the
+// source of truth for user-supplied rules.
+const BUILTIN_DIRECT_RULES = [
+	'DOMAIN-SUFFIX,qq.com',
+	'DOMAIN-SUFFIX,bilibili.com',
+	'DOMAIN-SUFFIX,b23.tv',
+	'DOMAIN-SUFFIX,biliapi.net',
+	'DOMAIN-SUFFIX,bilivideo.com',
+	'DOMAIN-SUFFIX,hdslb.com',
+];
+
 function quote(value) {
 	return JSON.stringify(String(value ?? ''));
 }
@@ -159,7 +171,11 @@ async function loadDirectRules(env) {
 	if (cachedDirectRules !== null) return cachedDirectRules;
 	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
 	const raw = await env.KV.get(DIRECT_RULES_KEY);
-	cachedDirectRules = normalizeRuleText(raw || '');
+	const rules = normalizeRuleText(raw || '');
+	for (const rule of BUILTIN_DIRECT_RULES) {
+		if (!rules.includes(rule)) rules.push(rule);
+	}
+	cachedDirectRules = rules;
 	return cachedDirectRules;
 }
 
