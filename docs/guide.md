@@ -84,7 +84,7 @@ Worker 提供四个地址：
 
 ## 4. DNS
 
-模板默认使用 fake-ip，并保留国内首选 DNS、境外 fallback 和局域网例外：
+模板默认使用 fake-ip，仅使用 Cloudflare、Google、Quad9 和 OpenDNS 的境外 DoH，并保留局域网例外：
 
 ```yaml
 dns:
@@ -94,29 +94,18 @@ dns:
   fake-ip-range: 198.18.0.1/16
   use-hosts: true
   nameserver:
-    - https://sm2.doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
-  fallback:
-    - https://dns.google/dns-query
     - https://cloudflare-dns.com/dns-query
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    ipcidr:
-      - 240.0.0.0/4
-      - 127.0.0.1/32
-      - 0.0.0.0/32
-    domain:
-      - +.google.com
-      - +.facebook.com
-      - +.youtube.com
+    - https://dns.google/dns-query
+  fallback:
+    - https://dns.quad9.net/dns-query
+    - https://doh.opendns.com/dns-query
   fake-ip-filter:
     - localhost
     - +.lan
     - +.local
 ```
 
-`fallback-filter.domain` 只决定 DNS 使用哪个解析器，不决定请求是否走代理。`fake-ip-filter` 中的域名会绕过 fake-ip，因此不应无限添加。
+`fake-ip-filter` 中的域名会绕过 fake-ip，因此不应无限添加。DNS 解析器地址在客户端建立 DoH 连接时仍可能受客户端的 DNS/代理模式影响；要避免本地网络直接接管 DNS，请同时启用客户端的 TUN/增强模式及“DNS 通过代理”（若客户端提供该选项）。
 
 ## 5. 更新部署
 
