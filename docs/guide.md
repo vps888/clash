@@ -93,19 +93,26 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   use-hosts: true
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+  proxy-server-nameserver:
+    - https://cloudflare-dns.com/dns-query#三网优化
+    - https://dns.google/dns-query#三网优化
+  respect-rules: true
   nameserver:
-    - https://cloudflare-dns.com/dns-query
-    - https://dns.google/dns-query
+    - https://cloudflare-dns.com/dns-query#三网优化
+    - https://dns.google/dns-query#三网优化
   fallback:
-    - https://dns.quad9.net/dns-query
-    - https://doh.opendns.com/dns-query
+    - https://dns.quad9.net/dns-query#三网优化
+    - https://doh.opendns.com/dns-query#三网优化
   fake-ip-filter:
     - localhost
     - +.lan
     - +.local
 ```
 
-`fake-ip-filter` 中的域名会绕过 fake-ip，因此不应无限添加。DNS 解析器地址在客户端建立 DoH 连接时仍可能受客户端的 DNS/代理模式影响；要避免本地网络直接接管 DNS，请同时启用客户端的 TUN/增强模式及“DNS 通过代理”（若客户端提供该选项）。
+`#三网优化` 让 DoH 请求经代理组发送，`default-nameserver` 仅用于启动时解析 DoH 服务器自身的域名。`fake-ip-filter` 中的域名会绕过 fake-ip，因此不应无限添加。
 
 ## 5. 更新部署
 
