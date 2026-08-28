@@ -81,6 +81,8 @@ DOMAIN-SUFFIX,mi.com
 DOMAIN-SUFFIX,miaopai.com
 DOMAIN-SUFFIX,microsoft.com
 DOMAIN-SUFFIX,microsoftonline.com
+DOMAIN-SUFFIX,mijia.com
+DOMAIN-SUFFIX,mijia.tech
 DOMAIN-SUFFIX,miui.com
 DOMAIN-SUFFIX,miwifi.com
 DOMAIN-SUFFIX,mob.com
@@ -113,6 +115,7 @@ DOMAIN-SUFFIX,tencent.com
 DOMAIN-SUFFIX,toutiaoimg.com
 DOMAIN-SUFFIX,toutiaostatic.com
 DOMAIN-SUFFIX,ubuntu.com
+DOMAIN-SUFFIX,xiaomi.com
 DOMAIN-SUFFIX,yibuapi.com
 DOMAIN-SUFFIX,zijieapi.com
 DOMAIN-SUFFIX,zoot.plus

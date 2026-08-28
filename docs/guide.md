@@ -80,7 +80,7 @@ Worker 提供四个地址：
 /rules/streaming.txt?token=...
 ```
 
-主订阅只引用三个 `rule-providers`，客户端会单独缓存并定期更新规则。需要 Clash Meta、Mihomo、Clash Verge Rev 等支持 `rule-providers` 的内核。
+主订阅会把三个规则文件直接展开到 `rules:` 段，客户端不需要启用或更新 `rule-providers`。三个 `/rules/*.txt` 地址仍保留，方便单独检查规则内容。
 
 ## 4. DNS
 

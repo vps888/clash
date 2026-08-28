@@ -8,8 +8,7 @@ let cachedDirectRules = null;
 let cachedStreamingRules = null;
 
 // Keep the most important domestic services direct even if a KV rule upload
-// is temporarily unavailable. The generated rule provider still remains the
-// source of truth for user-supplied rules.
+// is temporarily unavailable. They are merged into the expanded rules list.
 const BUILTIN_DIRECT_RULES = [
 	'DOMAIN-SUFFIX,qq.com',
 	'DOMAIN-SUFFIX,bilibili.com',
@@ -17,6 +16,9 @@ const BUILTIN_DIRECT_RULES = [
 	'DOMAIN-SUFFIX,biliapi.net',
 	'DOMAIN-SUFFIX,bilivideo.com',
 	'DOMAIN-SUFFIX,hdslb.com',
+	'DOMAIN-SUFFIX,mijia.com',
+	'DOMAIN-SUFFIX,mijia.tech',
+	'DOMAIN-SUFFIX,xiaomi.com',
 ];
 
 function quote(value) {
@@ -72,18 +74,6 @@ function normalizeConfig(source) {
 	};
 }
 
-function renderRuleProvider(name, url, path) {
-	return [
-		`  ${name}:`,
-		'    type: http',
-		'    behavior: classical',
-		'    format: text',
-		`    url: ${quote(url)}`,
-		`    path: ${quote(path)}`,
-		'    interval: 86400',
-	].join('\n');
-}
-
 function renderProvider(provider) {
 	if (!provider?.name || !provider?.url) return '';
 	const lines = [
@@ -117,7 +107,7 @@ function renderGroup(group) {
 	return `  - {${parts.join(', ')}}`;
 }
 
-function renderClash(config, { adProviderUrl = '', directProviderUrl = '', streamingProviderUrl = '' } = {}) {
+function renderClash(config, { adRules = [], directRules = [], streamingRules = [] } = {}) {
 	const clash = config?.clash || {};
 	const lines = [
 		'mixed-port: 7890',
@@ -130,17 +120,11 @@ function renderClash(config, { adProviderUrl = '', directProviderUrl = '', strea
 	lines.push('proxies:', ...(clash.proxies || []).map(proxy => proxy.yaml).filter(Boolean), '');
 	const providers = (clash.proxyProviders || []).map(renderProvider).filter(Boolean);
 	if (providers.length > 0) lines.push('proxy-providers:', ...providers, '');
-	const ruleProviders = [
-		...(adProviderUrl ? [renderRuleProvider('ads', adProviderUrl, './rules/ads.txt')] : []),
-		...(directProviderUrl ? [renderRuleProvider('direct', directProviderUrl, './rules/direct.txt')] : []),
-		...(streamingProviderUrl ? [renderRuleProvider('streaming', streamingProviderUrl, './rules/streaming.txt')] : []),
-	];
-	if (ruleProviders.length > 0) lines.push('rule-providers:', ...ruleProviders, '');
 	lines.push('proxy-groups:', ...(clash.groups || []).map(renderGroup).filter(Boolean), '');
 	const rules = [
-		...(adProviderUrl ? ['RULE-SET,ads,REJECT'] : []),
-		...(directProviderUrl ? ['RULE-SET,direct,国内直连'] : []),
-		...(streamingProviderUrl ? ['RULE-SET,streaming,流媒体'] : []),
+		...adRules.map(rule => `${rule},REJECT`),
+		...directRules.map(rule => `${rule},国内直连`),
+		...streamingRules.map(rule => `${rule},流媒体`),
 		...(clash.rules || []),
 	];
 	lines.push('rules:', ...rules.map(rule => `  - ${rule}`), '');
@@ -233,18 +217,9 @@ export default {
 					},
 				});
 			}
-			const adProviderUrl = adRules.length
-				? new URL(`/rules/ads.txt?token=${encodeURIComponent(expectedToken)}`, request.url).toString()
-				: '';
 			const directRules = await loadDirectRules(env);
-			const directProviderUrl = directRules.length
-				? new URL(`/rules/direct.txt?token=${encodeURIComponent(expectedToken)}`, request.url).toString()
-				: '';
 			const streamingRules = await loadStreamingRules(env);
-			const streamingProviderUrl = streamingRules.length
-				? new URL(`/rules/streaming.txt?token=${encodeURIComponent(expectedToken)}`, request.url).toString()
-				: '';
-			return new Response(renderClash(config, { adProviderUrl, directProviderUrl, streamingProviderUrl }), {
+			return new Response(renderClash(config, { adRules, directRules, streamingRules }), {
 				headers: {
 					'content-type': 'text/yaml; charset=utf-8',
 					'cache-control': 'no-store',
