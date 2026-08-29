@@ -80,7 +80,7 @@ Worker 提供四个地址：
 /rules/streaming.txt?token=...
 ```
 
-主订阅会把三个规则文件直接展开到 `rules:` 段，客户端不需要启用或更新 `rule-providers`。三个 `/rules/*.txt` 地址仍保留，方便单独检查规则内容。
+主订阅会把国内直连和流媒体规则直接展开到 `rules:` 段；广告规则改为通过 `rule-providers` 在线加载，并在 `rules:` 中使用 `RULE-SET,ad-rules,REJECT` 引用。客户端会按 `interval` 定期更新广告资源。三个 `/rules/*.txt` 地址仍保留，方便单独检查规则内容。
 
 ## 4. DNS
 

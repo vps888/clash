@@ -107,7 +107,7 @@ function renderGroup(group) {
 	return `  - {${parts.join(', ')}}`;
 }
 
-function renderClash(config, { adRules = [], directRules = [], streamingRules = [] } = {}) {
+function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], streamingRules = [] } = {}) {
 	const clash = config?.clash || {};
 	const lines = [
 		'mixed-port: 7890',
@@ -120,12 +120,34 @@ function renderClash(config, { adRules = [], directRules = [], streamingRules = 
 	lines.push('proxies:', ...(clash.proxies || []).map(proxy => proxy.yaml).filter(Boolean), '');
 	const providers = (clash.proxyProviders || []).map(renderProvider).filter(Boolean);
 	if (providers.length > 0) lines.push('proxy-providers:', ...providers, '');
+	if (adRulesUrl) {
+		lines.push(
+			'rule-providers:',
+			'  ad-rules:',
+			'    type: http',
+			'    behavior: classical',
+			'    format: text',
+			`    url: ${quote(adRulesUrl)}`,
+			'    path: ./rule-providers/ad-rules.txt',
+			'    interval: 86400',
+			'',
+		);
+	}
 	lines.push('proxy-groups:', ...(clash.groups || []).map(renderGroup).filter(Boolean), '');
-	const rules = [
-		...adRules.map(rule => `${rule},REJECT`),
+	// Keep terminal MATCH rules at the very end.  REJECT rules are intentionally
+	// placed after the user routing rules so explicit direct/proxy exceptions win,
+	// but before MATCH; anything after MATCH would never be evaluated.
+	const routingRules = [
 		...directRules.map(rule => `${rule},国内直连`),
 		...streamingRules.map(rule => `${rule},流媒体`),
 		...(clash.rules || []),
+	];
+	const terminalRules = routingRules.filter(rule => /^MATCH(?:,|$)/i.test(rule));
+	const nonTerminalRules = routingRules.filter(rule => !/^MATCH(?:,|$)/i.test(rule));
+	const rules = [
+		...nonTerminalRules,
+		...(adRulesUrl ? ['RULE-SET,ad-rules,REJECT'] : adRules.map(rule => `${rule},REJECT`)),
+		...terminalRules,
 	];
 	lines.push('rules:', ...rules.map(rule => `  - ${rule}`), '');
 	return `${lines.join('\n')}\n`;
@@ -208,8 +230,8 @@ export default {
 				});
 			}
 			const config = await loadConfig(env);
-			const adRules = await loadAdRules(env);
 			if (url.pathname === '/rules/ads.txt') {
+				const adRules = await loadAdRules(env);
 				return new Response(renderAdRules(adRules), {
 					headers: {
 						'content-type': 'text/plain; charset=utf-8',
@@ -219,7 +241,13 @@ export default {
 			}
 			const directRules = await loadDirectRules(env);
 			const streamingRules = await loadStreamingRules(env);
-			return new Response(renderClash(config, { adRules, directRules, streamingRules }), {
+			const adRulesUrl = new URL('/rules/ads.txt', request.url);
+			adRulesUrl.searchParams.set('token', url.searchParams.get('token'));
+			return new Response(renderClash(config, {
+				adRulesUrl: adRulesUrl.toString(),
+				directRules,
+				streamingRules,
+			}), {
 				headers: {
 					'content-type': 'text/yaml; charset=utf-8',
 					'cache-control': 'no-store',
