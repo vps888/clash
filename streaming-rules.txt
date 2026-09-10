@@ -47,3 +47,4 @@ DOMAIN-SUFFIX,cloudflarestorage.com
 DOMAIN-SUFFIX,macrocosmos.ai
 DOMAIN-SUFFIX,posthog.com
 DOMAIN-SUFFIX,iroh.link
+DOMAIN-SUFFIX,digitaloceanspaces.com
