@@ -45,3 +45,4 @@ DOMAIN-SUFFIX,ttvnw.net
 # Other services
 DOMAIN-SUFFIX,cloudflarestorage.com
 DOMAIN-SUFFIX,macrocosmos.ai
+DOMAIN-SUFFIX,posthog.com
