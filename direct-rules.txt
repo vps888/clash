@@ -92,6 +92,7 @@ DOMAIN-SUFFIX,mijia.tech
 DOMAIN-SUFFIX,miui.com
 DOMAIN-SUFFIX,miwifi.com
 DOMAIN-SUFFIX,mob.com
+DOMAIN-SUFFIX,mynj.cn
 DOMAIN-SUFFIX,netease.com
 DOMAIN-SUFFIX,nih.gov
 DOMAIN-SUFFIX,office.com
