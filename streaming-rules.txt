@@ -46,3 +46,4 @@ DOMAIN-SUFFIX,ttvnw.net
 DOMAIN-SUFFIX,cloudflarestorage.com
 DOMAIN-SUFFIX,macrocosmos.ai
 DOMAIN-SUFFIX,posthog.com
+DOMAIN-SUFFIX,iroh.link
