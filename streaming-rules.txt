@@ -48,3 +48,4 @@ DOMAIN-SUFFIX,macrocosmos.ai
 DOMAIN-SUFFIX,posthog.com
 DOMAIN-SUFFIX,iroh.link
 DOMAIN-SUFFIX,digitaloceanspaces.com
+DOMAIN-SUFFIX,ezwave.com
