@@ -10,9 +10,10 @@
     "shortId": "",
     "clientFingerprint": "firefox"
   },
+  "servers": [],
   "static": [
     {
-      "name": "US-Static161-via-HD",
+      "name": "US-Static161",
       "flag": "🇺🇸",
       "server": "YOUR-STATIC-IP",
       "port": 12324,

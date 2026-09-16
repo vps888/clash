@@ -32,8 +32,16 @@ function buildVlessProxy(node) {
 	return { name, yaml };
 }
 
-function buildStaticProxy(node, dialerName) {
-	const name = `${node.flag || '🇺🇸'} ${node.name || 'US-Static-via-HD'}`;
+function serverLabel(node) {
+	return String(node?.name || 'server')
+		.replace(/^US-/i, '')
+		.replace(/\s+/g, '-');
+}
+
+function buildStaticProxy(node, dialerName, dialerNode, multiServer) {
+	const baseName = String(node.name || 'US-Static-via-HD').replace(/-via-[^-]+$/i, '');
+	const suffix = multiServer ? `-via-${serverLabel(dialerNode)}` : '-via-HD';
+	const name = `${node.flag || '🇺🇸'} ${baseName}${suffix}`;
 	const yaml = `  - {name: ${quote(name)}, type: socks5, server: ${quote(node.server)}, port: ${Number(node.port) || 12324}, username: ${quote(node.username)}, password: ${quote(node.password)}, dialer-proxy: ${quote(dialerName)}}`;
 	return { name, yaml };
 }
@@ -48,12 +56,26 @@ function normalizeAdProviderRule(rule) {
 
 function normalizeConfig(source) {
 	if (source?.clash) return source;
-	const proxyServer = source?.server || source?.hostdare;
-	if (!proxyServer?.server || !proxyServer?.uuid || !proxyServer?.publicKey || !proxyServer?.servername) {
-		throw new Error('sub.json requires server.server, uuid, publicKey and servername');
+	const legacyServer = source?.server || source?.hostdare;
+	const configuredServers = Array.isArray(source.servers) ? source.servers : [];
+	const seenServers = new Set();
+	const serverNodes = [legacyServer, ...configuredServers].filter(node => {
+		if (!node) return false;
+		const key = `${node.name || ''}|${node.server || ''}|${node.port || ''}|${node.uuid || ''}`;
+		if (seenServers.has(key)) return false;
+		seenServers.add(key);
+		return true;
+	});
+	if (serverNodes.length === 0 || serverNodes.some(node => !node?.server || !node?.uuid || !node?.publicKey || !node?.servername)) {
+		throw new Error('sub.json requires each server to include server, uuid, publicKey and servername');
 	}
-	const serverProxy = buildVlessProxy(proxyServer);
-	const proxies = [serverProxy, ...(Array.isArray(source.static) ? source.static : []).filter(node => node?.server).map(node => buildStaticProxy(node, serverProxy.name))];
+	const serverProxies = serverNodes.map(buildVlessProxy);
+	const staticNodes = (Array.isArray(source.static) ? source.static : []).filter(node => node?.server);
+	const multiServer = serverProxies.length > 1;
+	const staticProxies = staticNodes.flatMap(staticNode => serverNodes.map((serverNode, index) => (
+		buildStaticProxy(staticNode, serverProxies[index].name, serverNode, multiServer)
+	)));
+	const proxies = [...serverProxies, ...staticProxies];
 	const proxyNames = proxies.map(proxy => proxy.name);
 	const rules = ['GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
 	const providers = Array.isArray(source.providers) ? source.providers : [];
