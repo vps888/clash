@@ -4,6 +4,7 @@ DOMAIN,deb.debian.org
 DOMAIN,ports.ubuntu.com
 DOMAIN,security.ubuntu.com
 IP-CIDR,43.129.78.33/32
+IP-CIDR,179.253.229.178/32
 DOMAIN-KEYWORD,alicdn
 DOMAIN-KEYWORD,alipay
 DOMAIN-KEYWORD,baidu
