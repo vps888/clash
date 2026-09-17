@@ -120,6 +120,7 @@ DOMAIN-SUFFIX,ruguoapp.com
 DOMAIN-SUFFIX,segmentfault.com
 DOMAIN-SUFFIX,sogou.com
 DOMAIN-SUFFIX,snssdk.com
+DOMAIN-SUFFIX,speedtest.net
 DOMAIN-SUFFIX,tencent.com
 DOMAIN-SUFFIX,ubuntu.com
 DOMAIN-SUFFIX,xiaomi.com
