@@ -42,6 +42,9 @@ DOMAIN-SUFFIX,twitch.tv
 DOMAIN-SUFFIX,twitchcdn.net
 DOMAIN-SUFFIX,ttvnw.net
 
+# Cloudflare
+DOMAIN-KEYWORD,cloudflare
+
 # Other services
 DOMAIN-SUFFIX,cloudflarestorage.com
 DOMAIN-SUFFIX,huggingface.co
