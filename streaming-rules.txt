@@ -48,3 +48,11 @@ DOMAIN-KEYWORD,cloudflare
 # Other services
 DOMAIN-SUFFIX,cloudflarestorage.com
 DOMAIN-SUFFIX,huggingface.co
+
+# IOTA train at Home
+DOMAIN-SUFFIX,macrocosmos.ai
+DOMAIN-SUFFIX,digitaloceanspaces.com
+DOMAIN-SUFFIX,posthog.com
+DOMAIN-SUFFIX,iroh.link
+DOMAIN-SUFFIX,ezwave.com
+DOMAIN-SUFFIX,windstream.net

@@ -142,12 +142,4 @@ DOMAIN-SUFFIX,ibytedapm.com
 DOMAIN-SUFFIX,bytedance.com
 DOMAIN-SUFFIX,toutiaoimg.com
 
-# IOTA train at Home
-DOMAIN-SUFFIX,macrocosmos.ai
-DOMAIN-SUFFIX,digitaloceanspaces.com
-DOMAIN-SUFFIX,posthog.com
-DOMAIN-SUFFIX,iroh.link
-DOMAIN-SUFFIX,ezwave.com
-DOMAIN-SUFFIX,windstream.net
-
 GEOIP,lan
