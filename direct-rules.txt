@@ -1,3 +1,4 @@
+DOMAIN,api.cloudflare.com
 DOMAIN,archive.ubuntu.com
 DOMAIN,cdn.hockeyapp.net
 DOMAIN,deb.debian.org
@@ -124,6 +125,7 @@ DOMAIN-SUFFIX,sogou.com
 DOMAIN-SUFFIX,snssdk.com
 DOMAIN-SUFFIX,speedtest.net
 DOMAIN-SUFFIX,fdcservers.net
+DOMAIN-SUFFIX,gigenet.com
 DOMAIN-SUFFIX,tencent.com
 DOMAIN-SUFFIX,ubuntu.com
 DOMAIN-SUFFIX,weixinbridge.com
