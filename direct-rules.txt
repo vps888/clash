@@ -123,6 +123,7 @@ DOMAIN-SUFFIX,ruguoapp.com
 DOMAIN-SUFFIX,segmentfault.com
 DOMAIN-SUFFIX,sogou.com
 DOMAIN-SUFFIX,snssdk.com
+DOMAIN-SUFFIX,speedtest.net
 DOMAIN-SUFFIX,fdcservers.net
 DOMAIN-SUFFIX,gigenet.com
 DOMAIN-SUFFIX,tencent.com
