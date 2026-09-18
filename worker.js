@@ -100,9 +100,13 @@ function normalizeConfig(source) {
 	}
 	const serverProxies = serverNodes.map(buildServerProxy);
 	const staticNodes = (Array.isArray(source.static) ? source.static : []).filter(node => node?.server);
-	const multiServer = serverProxies.length > 1;
-	const staticProxies = staticNodes.flatMap(staticNode => serverNodes.map((serverNode, index) => (
-		buildStaticProxy(staticNode, serverProxies[index].name, serverNode, multiServer)
+	// Only servers explicitly allowed as a static-IP first hop can dial static nodes.
+	const staticDialers = serverNodes.map((node, index) => ({ node, proxy: serverProxies[index] }))
+		.filter(entry => entry.node.allowStaticHop !== false);
+	if (staticDialers.length === 0) throw new Error('sub.json requires at least one server with allowStaticHop not set to false');
+	const multiDialer = staticDialers.length > 1;
+	const staticProxies = staticNodes.flatMap(staticNode => staticDialers.map(({ node, proxy }) => (
+		buildStaticProxy(staticNode, proxy.name, node, multiDialer)
 	)));
 	const proxies = [...serverProxies, ...staticProxies];
 	const proxyNames = proxies.map(proxy => proxy.name);
