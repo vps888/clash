@@ -123,7 +123,6 @@ DOMAIN-SUFFIX,ruguoapp.com
 DOMAIN-SUFFIX,segmentfault.com
 DOMAIN-SUFFIX,sogou.com
 DOMAIN-SUFFIX,snssdk.com
-DOMAIN-SUFFIX,speedtest.net
 DOMAIN-SUFFIX,fdcservers.net
 DOMAIN-SUFFIX,gigenet.com
 DOMAIN-SUFFIX,tencent.com
@@ -141,5 +140,6 @@ DOMAIN-SUFFIX,bytegoofy.com
 DOMAIN-SUFFIX,ibytedapm.com
 DOMAIN-SUFFIX,bytedance.com
 DOMAIN-SUFFIX,toutiaoimg.com
-
+DOMAIN-KEYWORD,rfchost
+DOMAIN-KEYWORD,speedtest
 GEOIP,lan
