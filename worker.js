@@ -35,7 +35,7 @@ function buildVlessProxy(node) {
 function buildSsProxy(node) {
 	const flag = node.flag || '🇯🇵';
 	const name = `${flag} ${node.name || 'JP-SS'}`;
-	const yaml = `  - {name: ${quote(name)}, type: ss, server: ${quote(node.server)}, port: ${Number(node.port) || 443}, cipher: ${quote(node.cipher)}, password: ${quote(node.password)}, udp: true${node.udpOverTcp === false ? '' : `, udp-over-tcp: true, udp-over-tcp-version: ${Number(node.udpOverTcpVersion || 2)}`}}`;
+	const yaml = `  - {name: ${quote(name)}, type: ss, server: ${quote(node.server)}, port: ${Number(node.port) || 443}, cipher: ${quote(node.cipher)}, password: ${quote(node.password)}, udp: ${node.udp === false ? 'false' : 'true'}${node.udpOverTcp === false ? '' : `, udp-over-tcp: true, udp-over-tcp-version: ${Number(node.udpOverTcpVersion || 2)}`}}`;
 	return { name, yaml };
 }
 
