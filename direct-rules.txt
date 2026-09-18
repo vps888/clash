@@ -142,5 +142,6 @@ DOMAIN-SUFFIX,ibytedapm.com
 DOMAIN-SUFFIX,bytedance.com
 DOMAIN-SUFFIX,toutiaoimg.com
 DOMAIN-KEYWORD,rfchost
+DOMAIN-KEYWORD,kfchost
 DOMAIN-KEYWORD,speedtest
 GEOIP,lan

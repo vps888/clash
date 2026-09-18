@@ -189,6 +189,14 @@ function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], 
 		);
 	}
 	lines.push('proxy-groups:', ...(clash.groups || []).map(renderGroup).filter(Boolean), '');
+	// Block QUIC/HTTP3 (UDP 443) so browsers fall back to TCP immediately instead of
+	// hanging on proxies without UDP support (e.g. ss transit links). no-track keeps
+	// the rejected flows out of the connection table.
+	lines.push(
+		'script:',
+		'  shortcuts:',
+		"    quic: network == 'udp' and (dst_port == 443 or dst_port == 8443)",
+	);
 	// Keep terminal MATCH rules at the very end.  REJECT rules are intentionally
 	// placed after the user routing rules so explicit direct/proxy exceptions win,
 	// but before MATCH; anything after MATCH would never be evaluated.
@@ -200,6 +208,8 @@ function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], 
 	const terminalRules = routingRules.filter(rule => /^MATCH(?:,|$)/i.test(rule));
 	const nonTerminalRules = routingRules.filter(rule => !/^MATCH(?:,|$)/i.test(rule));
 	const rules = [
+		// QUIC block must come first so UDP 443 never reaches the proxy chain.
+		'SCRIPT,quic,REJECT,no-track',
 		...nonTerminalRules,
 		...(adRulesUrl ? ['RULE-SET,ad-rules,REJECT'] : adRules.map(rule => `${rule},REJECT`)),
 		...terminalRules,
