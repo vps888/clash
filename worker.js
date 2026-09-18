@@ -32,6 +32,31 @@ function buildVlessProxy(node) {
 	return { name, yaml };
 }
 
+function buildSsProxy(node) {
+	const flag = node.flag || '🇯🇵';
+	const name = `${flag} ${node.name || 'JP-SS'}`;
+	const yaml = `  - {name: ${quote(name)}, type: ss, server: ${quote(node.server)}, port: ${Number(node.port) || 443}, cipher: ${quote(node.cipher)}, password: ${quote(node.password)}, udp: true${node.udpOverTcp === false ? '' : `, udp-over-tcp: true, udp-over-tcp-version: ${Number(node.udpOverTcpVersion || 2)}`}}`;
+	return { name, yaml };
+}
+
+function buildServerProxy(node) {
+	if (node?.type === 'ss') return buildSsProxy(node);
+	return buildVlessProxy(node);
+}
+
+function validateServerNode(node) {
+	if (!node?.server) return 'server';
+	if (node.type === 'ss') {
+		if (!node.cipher) return 'cipher';
+		if (!node.password) return 'password';
+		return '';
+	}
+	if (!node.uuid) return 'uuid';
+	if (!node.publicKey) return 'publicKey';
+	if (!node.servername) return 'servername';
+	return '';
+}
+
 function serverLabel(node) {
 	return String(node?.name || 'server')
 		.replace(/^US-/i, '')
@@ -66,10 +91,14 @@ function normalizeConfig(source) {
 		seenServers.add(key);
 		return true;
 	});
-	if (serverNodes.length === 0 || serverNodes.some(node => !node?.server || !node?.uuid || !node?.publicKey || !node?.servername)) {
-		throw new Error('sub.json requires each server to include server, uuid, publicKey and servername');
+	if (serverNodes.length === 0) {
+		throw new Error('sub.json requires at least one server');
 	}
-	const serverProxies = serverNodes.map(buildVlessProxy);
+	const invalidField = serverNodes.reduce((first, node) => first || validateServerNode(node), '');
+	if (invalidField) {
+		throw new Error(`sub.json requires each server to include ${invalidField}`);
+	}
+	const serverProxies = serverNodes.map(buildServerProxy);
 	const staticNodes = (Array.isArray(source.static) ? source.static : []).filter(node => node?.server);
 	const multiServer = serverProxies.length > 1;
 	const staticProxies = staticNodes.flatMap(staticNode => serverNodes.map((serverNode, index) => (
