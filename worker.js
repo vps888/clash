@@ -125,7 +125,7 @@ function normalizeConfig(source) {
 		'GEOIP,netflix,海外加速,no-resolve',
 		'GEOSITE,category-game-platforms-download,国内直连,no-resolve',
 		'GEOIP,CN,国内直连,no-resolve',
-		'MATCH,海外加速',
+		'MATCH,静态IP',
 	];
 	return {
 		enabled: true,
