@@ -10,9 +10,9 @@
 Clash 客户端 → 第一跳代理服务器（VLESS Reality）→ 静态住宅 IP（SOCKS5）→ 目标网站
 ```
 
-只选择第一跳节点时，不经过静态住宅代理。订阅有三个策略组：`国内直连`、`三网优化` 和 `流媒体`。
+只选择第一跳节点时，不经过静态住宅代理。订阅有三个策略组：`国内直连`、`静态IP` 和 `海外加速`。`静态IP` 组只包含静态住宅节点，供需要稳定美国 IP 的场景手动选择；`海外加速` 组包含第一跳和订阅节点，承担大流量下载、媒体、AI 等默认流量。
 
-国内直连和流媒体规则会直接展开到主订阅的 `rules:` 段；广告规则通过 `rule-providers` 在线加载，避免主配置被几万条广告规则撑大。
+国内直连和海外加速规则会直接展开到主订阅的 `rules:` 段；广告规则通过 `rule-providers` 在线加载，避免主配置被几万条广告规则撑大。
 
 ## 部署
 
@@ -48,7 +48,7 @@ https://你的域名/sub?token=自动生成的Token
 
 编辑 `sub.json`：
 
-- `server.server`：第一跳代理服务器地址，建议使用三网优化代理；
+- `server.server`：第一跳代理服务器地址，建议使用海外加速节点；
 - `server.uuid`：第一跳代理服务器的 VLESS UUID；
 - `server.publicKey`：Reality 公钥；
 - `server.servername`：Reality SNI；
@@ -58,7 +58,7 @@ https://你的域名/sub?token=自动生成的Token
 
 - `ad-rules.txt`：广告拦截规则；
 - `direct-rules.txt`：自定义国内直连规则。
-- `streaming-rules.txt`：流媒体和 Telegram 规则。
+- `streaming-rules.txt`：海外加速（媒体、Telegram 等）规则。
 
 `sub.json`、Token 和代理账号密码不会提交到 GitHub。
 

@@ -67,11 +67,17 @@ IP-CIDR,10.0.0.0/8
 
 自定义规则先匹配，之后还有内置的 `GEOIP,CN` 规则作为兜底。
 
-### 流媒体规则
+### 海外加速规则
 
-`streaming-rules.txt` 默认包含 YouTube、Telegram、Netflix、Disney+、Max、Prime Video、Spotify 和 Twitch。可以按需添加或删除域名。
+`streaming-rules.txt` 默认包含 YouTube、Telegram、Netflix、Disney+、Max、Prime Video、Spotify 和 Twitch，也适合大流量下载、AI 等不需要静态 IP 的场景。可以按需添加或删除域名。
 
-这些域名会进入 `流媒体` 策略组；该组和 `三网优化` 使用相同的第一跳、静态住宅及私有订阅节点。Telegram 的部分连接可能使用固定 IP，单靠域名规则不能覆盖所有情况。
+这些域名会进入 `海外加速` 策略组；该组使用第一跳和私有订阅节点。需要稳定美国静态 IP 时，手动切换到 `静态IP` 组。Telegram 的部分连接可能使用固定 IP，单靠域名规则不能覆盖所有情况。
+
+订阅内置了以下兜底规则（写入 Worker，无需维护规则文件）：
+
+- `GEOSITE` 分类：AI、Emby、娱乐、成人站点 → `海外加速`；游戏平台下载 → `国内直连`
+- `GEOIP` 分类：Telegram、Google、Netflix → `海外加速`
+- `GEOIP,CN` → `国内直连`；`MATCH` → `海外加速`（默认流量不经过静态 IP）
 
 Worker 提供四个地址：
 
@@ -82,7 +88,7 @@ Worker 提供四个地址：
 /rules/streaming.txt?token=...
 ```
 
-主订阅会把国内直连和流媒体规则直接展开到 `rules:` 段；广告规则改为通过 `rule-providers` 在线加载，并在 `rules:` 中使用 `RULE-SET,ad-rules,REJECT` 引用。客户端会按 `interval` 定期更新广告资源。三个 `/rules/*.txt` 地址仍保留，方便单独检查规则内容。
+主订阅会把国内直连和海外加速规则直接展开到 `rules:` 段；广告规则改为通过 `rule-providers` 在线加载，并在 `rules:` 中使用 `RULE-SET,ad-rules,REJECT` 引用。客户端会按 `interval` 定期更新广告资源。三个 `/rules/*.txt` 地址仍保留，方便单独检查规则内容。
 
 ## 4. DNS
 
@@ -99,22 +105,22 @@ dns:
     - 1.1.1.1
     - 8.8.8.8
   proxy-server-nameserver:
-    - https://cloudflare-dns.com/dns-query#三网优化
-    - https://dns.google/dns-query#三网优化
+    - https://cloudflare-dns.com/dns-query#海外加速
+    - https://dns.google/dns-query#海外加速
   respect-rules: true
   nameserver:
-    - https://cloudflare-dns.com/dns-query#三网优化
-    - https://dns.google/dns-query#三网优化
+    - https://cloudflare-dns.com/dns-query#海外加速
+    - https://dns.google/dns-query#海外加速
   fallback:
-    - https://dns.quad9.net/dns-query#三网优化
-    - https://doh.opendns.com/dns-query#三网优化
+    - https://dns.quad9.net/dns-query#海外加速
+    - https://doh.opendns.com/dns-query#海外加速
   fake-ip-filter:
     - localhost
     - +.lan
     - +.local
 ```
 
-`#三网优化` 让 DoH 请求经代理组发送，`default-nameserver` 仅用于启动时解析 DoH 服务器自身的域名。`fake-ip-filter` 中的域名会绕过 fake-ip，因此不应无限添加。
+`#海外加速` 让 DoH 请求经代理组发送，`default-nameserver` 仅用于启动时解析 DoH 服务器自身的域名。`fake-ip-filter` 中的域名会绕过 fake-ip，因此不应无限添加。
 
 ## 5. 更新部署
 
@@ -146,7 +152,7 @@ sub.json.template      私有配置模板
 sub.json               本地敏感配置，不提交
 ad-rules.txt           广告规则
 direct-rules.txt       国内直连规则
-streaming-rules.txt    流媒体规则
+streaming-rules.txt    海外加速规则
 scripts/setup.sh       首次部署
 scripts/deploy.sh      更新部署
 wrangler.toml          公共占位配置

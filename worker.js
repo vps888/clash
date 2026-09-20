@@ -108,11 +108,25 @@ function normalizeConfig(source) {
 	const staticProxies = staticNodes.flatMap(staticNode => staticDialers.map(({ node, proxy }) => (
 		buildStaticProxy(staticNode, proxy.name, node, multiDialer)
 	)));
+	const serverProxyNames = serverProxies.map(proxy => proxy.name);
+	const allProxyNames = [...serverProxies, ...staticProxies].map(proxy => proxy.name);
 	const proxies = [...serverProxies, ...staticProxies];
-	const proxyNames = proxies.map(proxy => proxy.name);
-	const rules = ['GEOIP,CN,国内直连,no-resolve', 'MATCH,三网优化'];
 	const providers = Array.isArray(source.providers) ? source.providers : [];
 	const providerNames = providers.map(provider => provider?.name).filter(Boolean);
+	// Routing rules before the terminal MATCH; GEOSITE/GEOIP categories are
+	// borrowed from the stash.yaml reference config as broad built-in coverage.
+	const rules = [
+		'GEOSITE,category-ai-!cn,海外加速',
+		'GEOSITE,category-emby,海外加速',
+		'GEOSITE,category-entertainment,海外加速',
+		'GEOSITE,category-porn,海外加速',
+		'GEOIP,telegram,海外加速,no-resolve',
+		'GEOIP,google,海外加速,no-resolve',
+		'GEOIP,netflix,海外加速,no-resolve',
+		'GEOSITE,category-game-platforms-download,国内直连,no-resolve',
+		'GEOIP,CN,国内直连,no-resolve',
+		'MATCH,海外加速',
+	];
 	return {
 		enabled: true,
 		clash: {
@@ -121,8 +135,11 @@ function normalizeConfig(source) {
 			proxyProviders: providers,
 			groups: [
 				{ name: '国内直连', type: 'select', proxies: ['DIRECT'] },
-				{ name: '三网优化', type: 'select', proxies: proxyNames, use: providerNames },
-				{ name: '流媒体', type: 'select', proxies: proxyNames, use: providerNames },
+				// 静态IP keeps every node so a single static-IP exit stays reachable even
+				// when the first hop changes; the static residential nodes are the ones that
+				// actually provide a fixed US address.
+				{ name: '静态IP', type: 'select', proxies: allProxyNames, use: providerNames },
+				{ name: '海外加速', type: 'select', proxies: serverProxyNames, use: providerNames },
 			],
 			rules,
 		},
@@ -202,7 +219,7 @@ function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], 
 	// but before MATCH; anything after MATCH would never be evaluated.
 	const routingRules = [
 		...directRules.map(rule => `${rule},国内直连`),
-		...streamingRules.map(rule => `${rule},流媒体`),
+		...streamingRules.map(rule => `${rule},海外加速`),
 		...(clash.rules || []),
 	];
 	const terminalRules = routingRules.filter(rule => /^MATCH(?:,|$)/i.test(rule));
