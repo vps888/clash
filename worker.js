@@ -147,8 +147,6 @@ function normalizeConfig(source) {
 		'GEOSITE,google,静态IP',
 		'GEOIP,google,海外加速,no-resolve',
 		'GEOIP,netflix,海外加速,no-resolve',
-		// Known overseas domains, default to the accelerated group.
-		'GEOSITE,geolocation-!cn,海外加速',
 		// Private / CN IP fallbacks (domain already resolved, so keep last)
 		'GEOIP,private,DIRECT',
 		'GEOIP,CN,国内直连,no-resolve',
