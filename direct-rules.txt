@@ -92,3 +92,6 @@ DOMAIN-SUFFIX,icloud.com
 DOMAIN-SUFFIX,debian.org
 DOMAIN-SUFFIX,ubuntu.com
 DOMAIN-SUFFIX,zoot.plus
+
+# 我的
+DOMAIN-SUFFIX,zhetengxia.com
