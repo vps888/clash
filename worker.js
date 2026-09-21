@@ -140,6 +140,11 @@ function normalizeConfig(source) {
 		'GEOSITE,category-entertainment,海外加速',
 		'GEOSITE,category-porn,海外加速',
 		'GEOIP,telegram,海外加速,no-resolve',
+		// Google account domains (search, gmail, drive, login, android...) get a
+		// stable US IP for account/risk stability.  YouTube already matched
+		// category-entertainment above, and GCP-hosted third-party sites keep
+		// using the IP rule below.
+		'GEOSITE,google,静态IP',
 		'GEOIP,google,海外加速,no-resolve',
 		'GEOIP,netflix,海外加速,no-resolve',
 		// Known overseas domains, default to the accelerated group.
