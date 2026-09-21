@@ -129,8 +129,10 @@ function normalizeConfig(source) {
 		// Services that want a stable US IP
 		'GEOSITE,paypal,静态IP',
 		'GEOSITE,amazon,静态IP',
+		// AI services are heavily rate-limited by account/IP, so route them via the
+		// static residential exit.
+		'GEOSITE,category-ai-!cn,静态IP',
 		// Overseas acceleration (no static IP needed)
-		'GEOSITE,category-ai-!cn,海外加速',
 		'GEOSITE,category-dev,海外加速',
 		'GEOSITE,category-emby,海外加速',
 		'GEOSITE,telegram,海外加速',
