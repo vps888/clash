@@ -113,18 +113,39 @@ function normalizeConfig(source) {
 	const proxies = [...serverProxies, ...staticProxies];
 	const providers = Array.isArray(source.providers) ? source.providers : [];
 	const providerNames = providers.map(provider => provider?.name).filter(Boolean);
-	// Routing rules before the terminal MATCH; GEOSITE/GEOIP categories are
-	// borrowed from the stash.yaml reference config as broad built-in coverage.
+	// Routing rules before the terminal MATCH.  Order matters: forced-direct and
+	// static-IP services come before the broad overseas categories so they win.
 	const rules = [
+		// Ads (lightweight built-in, supplements the ad-rules rule-provider)
+		'GEOSITE,category-ads-all,REJECT',
+		// Forced direct / LAN
+		'GEOSITE,apple,国内直连',
+		'GEOSITE,category-game-platforms-download,国内直连,no-resolve',
+		'GEOSITE,category-pt,国内直连',
+		'GEOSITE,category-public-tracker,国内直连',
+		'GEOSITE,private,DIRECT',
+		// Self-hosted VPS SSH: direct is fine since the user controls these boxes.
+		'AND,((DST-PORT,22),(NOT,((GEOIP,CN)))),DIRECT',
+		// Services that want a stable US IP
+		'GEOSITE,paypal,静态IP',
+		'GEOSITE,amazon,静态IP',
+		// Overseas acceleration (no static IP needed)
 		'GEOSITE,category-ai-!cn,海外加速',
+		'GEOSITE,category-dev,海外加速',
 		'GEOSITE,category-emby,海外加速',
+		'GEOSITE,telegram,海外加速',
+		'GEOSITE,category-cryptocurrency,海外加速',
 		'GEOSITE,category-entertainment,海外加速',
 		'GEOSITE,category-porn,海外加速',
 		'GEOIP,telegram,海外加速,no-resolve',
 		'GEOIP,google,海外加速,no-resolve',
 		'GEOIP,netflix,海外加速,no-resolve',
-		'GEOSITE,category-game-platforms-download,国内直连,no-resolve',
+		// Known overseas domains, default to the accelerated group.
+		'GEOSITE,geolocation-!cn,海外加速',
+		// Private / CN IP fallbacks (domain already resolved, so keep last)
+		'GEOIP,private,DIRECT',
 		'GEOIP,CN,国内直连,no-resolve',
+		// Final fallback
 		'MATCH,静态IP',
 	];
 	return {

@@ -83,11 +83,6 @@ DOMAIN-SUFFIX,bdstatic.com
 DOMAIN-SUFFIX,feishu.cn
 DOMAIN-SUFFIX,feishucdn.com
 DOMAIN-SUFFIX,csdn.net
-# Apple（worker 无 apple 兜底，iCloud 等需直连）
-DOMAIN-SUFFIX,apple.com
-DOMAIN-SUFFIX,apple-cloudkit.com
-DOMAIN-SUFFIX,icloud-content.com
-DOMAIN-SUFFIX,icloud.com
 # 其他需要直连的境外边缘
 DOMAIN-SUFFIX,debian.org
 DOMAIN-SUFFIX,ubuntu.com

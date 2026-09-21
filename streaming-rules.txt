@@ -1,12 +1,3 @@
-# Telegram（GEOIP,telegram 兜底，保留域名规则以精确匹配）
-DOMAIN-SUFFIX,telegram.org
-DOMAIN-SUFFIX,telegram.me
-DOMAIN-SUFFIX,telegram-cdn.org
-DOMAIN-SUFFIX,t.me
-DOMAIN-SUFFIX,telegra.ph
-DOMAIN-SUFFIX,telesco.pe
-DOMAIN-SUFFIX,tdesktop.com
-
 # Cloudflare
 DOMAIN-KEYWORD,cloudflare
 
