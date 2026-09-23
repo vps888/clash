@@ -1,10 +1,12 @@
 const CONFIG_KEY = 'sub.json';
 const DIRECT_RULES_KEY = 'direct-rules.txt';
 const STREAMING_RULES_KEY = 'streaming-rules.txt';
+const FLEXIBLE_RULES_KEY = 'flexible-rules.txt';
 const PUBLIC_AD_RULES_URL = 'https://ghproxy.uufly.org/https://raw.githubusercontent.com/alecthw/chnlist/release/Providers/Custom/Adblock4limbo.yaml';
 let cachedConfig = null;
 let cachedDirectRules = null;
 let cachedStreamingRules = null;
+let cachedFlexibleRules = null;
 
 // Keep the most important domestic services direct even if a KV rule upload
 // is temporarily unavailable. They are merged into the expanded rules list.
@@ -162,6 +164,7 @@ function normalizeConfig(source) {
 			proxyProviders: providers,
 			groups: [
 				{ name: '国内直连', type: 'select', proxies: ['DIRECT'] },
+				{ name: '灵活调整', type: 'select', proxies: ['海外加速', '国内直连'] },
 				// 静态IP keeps every node so a single static-IP exit stays reachable even
 				// when the first hop changes; the static residential nodes are the ones that
 				// actually provide a fixed US address.
@@ -206,7 +209,7 @@ function renderGroup(group) {
 	return `  - {${parts.join(', ')}}`;
 }
 
-function renderClash(config, { directRules = [], streamingRules = [] } = {}) {
+function renderClash(config, { directRules = [], flexibleRules = [], streamingRules = [] } = {}) {
 	const clash = config?.clash || {};
 	const lines = [
 		'mixed-port: 7890',
@@ -244,6 +247,7 @@ function renderClash(config, { directRules = [], streamingRules = [] } = {}) {
 	// but before MATCH; anything after MATCH would never be evaluated.
 	const routingRules = [
 		...directRules.map(rule => `${rule},国内直连`),
+		...flexibleRules.map(rule => `${rule},灵活调整`),
 		...streamingRules.map(rule => `${rule},海外加速`),
 		...(clash.rules || []),
 	];
@@ -296,6 +300,14 @@ async function loadStreamingRules(env) {
 	return cachedStreamingRules;
 }
 
+async function loadFlexibleRules(env) {
+	if (cachedFlexibleRules !== null) return cachedFlexibleRules;
+	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
+	const raw = await env.KV.get(FLEXIBLE_RULES_KEY);
+	cachedFlexibleRules = normalizeRuleText(raw || '');
+	return cachedFlexibleRules;
+}
+
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url);
@@ -326,9 +338,11 @@ export default {
 			}
 			const config = await loadConfig(env);
 			const directRules = await loadDirectRules(env);
+			const flexibleRules = await loadFlexibleRules(env);
 			const streamingRules = await loadStreamingRules(env);
 			return new Response(renderClash(config, {
 				directRules,
+				flexibleRules,
 				streamingRules,
 			}), {
 				headers: {

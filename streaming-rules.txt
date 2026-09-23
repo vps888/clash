@@ -1,14 +1,5 @@
 # Cloudflare
 DOMAIN-KEYWORD,cloudflare
 
-# 自用服务 / IOTA train at Home（无 GEOSITE 分类，必须保留）
-DOMAIN-SUFFIX,cloudflarestorage.com
-DOMAIN-SUFFIX,macrocosmos.ai
-DOMAIN-SUFFIX,digitaloceanspaces.com
-DOMAIN-SUFFIX,posthog.com
-DOMAIN-SUFFIX,iroh.link
-DOMAIN-SUFFIX,ezwave.com
-DOMAIN-SUFFIX,windstream.net
-
 # EMBY
 DOMAIN-KEYWORD,uhdnow
