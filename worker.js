@@ -120,10 +120,10 @@ function normalizeConfig(source) {
 		// Ads (lightweight built-in, supplements the ad-rules rule-provider)
 		'GEOSITE,category-ads-all,REJECT',
 		// Forced direct / LAN
-		'GEOSITE,apple,国内直连',
-		'GEOSITE,category-game-platforms-download,国内直连',
-		'GEOSITE,category-pt,国内直连',
-		'GEOSITE,category-public-tracker,国内直连',
+		'GEOSITE,apple,DIRECT',
+		'GEOSITE,category-game-platforms-download,DIRECT',
+		'GEOSITE,category-pt,DIRECT',
+		'GEOSITE,category-public-tracker,DIRECT',
 		'GEOSITE,private,DIRECT',
 		// Self-hosted VPS SSH: direct is fine since the user controls these boxes.
 		'AND,((DST-PORT,22),(NOT,((GEOIP,CN)))),DIRECT',
@@ -152,9 +152,9 @@ function normalizeConfig(source) {
 		'GEOIP,netflix,海外加速,no-resolve',
 		// Private / CN IP fallbacks (domain already resolved, so keep last)
 		'GEOIP,private,DIRECT',
-		'GEOIP,CN,国内直连,no-resolve',
+		'GEOIP,CN,DIRECT,no-resolve',
 		// Final fallback
-		'MATCH,静态IP',
+		'MATCH,兜底流量',
 	];
 	return {
 		enabled: true,
@@ -163,13 +163,13 @@ function normalizeConfig(source) {
 			proxies,
 			proxyProviders: providers,
 			groups: [
-				{ name: '国内直连', type: 'select', proxies: ['DIRECT'] },
-				{ name: '灵活调整', type: 'select', proxies: ['海外加速', '国内直连'] },
+				{ name: '灵活调整', type: 'select', proxies: ['海外加速', 'DIRECT'] },
 				// 静态IP keeps every node so a single static-IP exit stays reachable even
 				// when the first hop changes; the static residential nodes are the ones that
 				// actually provide a fixed US address.
 				{ name: '静态IP', type: 'select', proxies: allProxyNames, use: providerNames },
 				{ name: '海外加速', type: 'select', proxies: serverProxyNames, use: providerNames },
+				{ name: '兜底流量', type: 'select', proxies: ['静态IP', 'DIRECT', '海外加速'] },
 			],
 			rules,
 		},
@@ -246,7 +246,7 @@ function renderClash(config, { directRules = [], flexibleRules = [], streamingRu
 	// placed after the user routing rules so explicit direct/proxy exceptions win,
 	// but before MATCH; anything after MATCH would never be evaluated.
 	const routingRules = [
-		...directRules.map(rule => `${rule},国内直连`),
+		...directRules.map(rule => `${rule},DIRECT`),
 		...flexibleRules.map(rule => `${rule},灵活调整`),
 		...streamingRules.map(rule => `${rule},海外加速`),
 		...(clash.rules || []),
