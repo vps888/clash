@@ -56,9 +56,10 @@ https://你的域名/sub?token=自动生成的Token
 
 规则文件可以直接编辑：
 
-- `ad-rules.txt`：广告拦截规则；
-- `direct-rules.txt`：自定义国内直连规则。
+- `direct-rules.txt`：自定义国内直连规则；
 - `streaming-rules.txt`：海外加速（媒体、Telegram 等）规则。
+
+广告拦截使用公开维护的 Adblock4limbo 规则集，不再上传或维护本地广告规则文件。
 
 `sub.json`、Token 和代理账号密码不会提交到 GitHub。
 

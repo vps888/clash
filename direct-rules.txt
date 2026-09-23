@@ -1,9 +1,5 @@
 # 精确域名直连（避免 DNS 解析 + GEOIP 兜底）
-DOMAIN,archive.ubuntu.com
 DOMAIN,cdn.hockeyapp.net
-DOMAIN,deb.debian.org
-DOMAIN,ports.ubuntu.com
-DOMAIN,security.ubuntu.com
 
 # 关键词强制直连（GEOSITE/GEOIP 覆盖不了关键词语义，必须保留）
 DOMAIN-KEYWORD,alicdn
@@ -39,12 +35,8 @@ DOMAIN-SUFFIX,byte-gslb.com
 DOMAIN-SUFFIX,bytegoofy.com
 DOMAIN-SUFFIX,ibytedapm.com
 DOMAIN-SUFFIX,bytedance.com
-DOMAIN-SUFFIX,toutiao.com
-DOMAIN-SUFFIX,toutiaostatic.com
-DOMAIN-SUFFIX,toutiaoimg.com
 DOMAIN-SUFFIX,snssdk.com
 DOMAIN-SUFFIX,douyin.com
-DOMAIN-SUFFIX,zijieapi.com
 # 腾讯系
 DOMAIN-SUFFIX,tencent.com
 DOMAIN-SUFFIX,qq.com
@@ -78,7 +70,6 @@ DOMAIN-SUFFIX,netease.com
 # 其他国内高频
 DOMAIN-SUFFIX,jd.com
 DOMAIN-SUFFIX,360buyimg.com
-DOMAIN-SUFFIX,baidu.com
 DOMAIN-SUFFIX,bdstatic.com
 DOMAIN-SUFFIX,feishu.cn
 DOMAIN-SUFFIX,feishucdn.com

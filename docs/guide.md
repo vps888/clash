@@ -46,12 +46,7 @@ Clash 客户端 → server（VLESS Reality）→ static（SOCKS5）→ 目标网
 
 ### 广告规则
 
-`ad-rules.txt` 每行一条 Clash/Mihomo 规则，例如：
-
-```text
-DOMAIN-SUFFIX,example-ad.com
-DOMAIN-KEYWORD,advert
-```
+订阅使用公开维护的 [Adblock4limbo](https://github.com/alecthw/chnlist) 规则集，不再上传或维护本地广告规则文件。Worker 将其作为 `rule-providers` 在线加载，并按每日间隔更新。
 
 这些规则通过 `REJECT` 策略处理。
 
@@ -79,16 +74,15 @@ IP-CIDR,10.0.0.0/8
 - `GEOIP` 分类：Telegram、Google、Netflix → `海外加速`
 - `GEOIP,CN` → `国内直连`；`MATCH` → `海外加速`（默认流量不经过静态 IP）
 
-Worker 提供四个地址：
+Worker 提供三个地址：
 
 ```text
 /sub?token=...
-/rules/ads.txt?token=...
 /rules/direct.txt?token=...
 /rules/streaming.txt?token=...
 ```
 
-主订阅会把国内直连和海外加速规则直接展开到 `rules:` 段；广告规则改为通过 `rule-providers` 在线加载，并在 `rules:` 中使用 `RULE-SET,ad-rules,REJECT` 引用。客户端会按 `interval` 定期更新广告资源。三个 `/rules/*.txt` 地址仍保留，方便单独检查规则内容。
+主订阅会把国内直连和海外加速规则直接展开到 `rules:` 段，并引用公开 Adblock4limbo 广告规则集作为 `RULE-SET,ad-rules,REJECT`。客户端会按 `interval` 定期更新广告资源。两个 `/rules/*.txt` 地址仍保留，方便单独检查直连和海外加速规则内容。
 
 ## 4. DNS
 
@@ -124,7 +118,7 @@ dns:
 
 ## 5. 更新部署
 
-修改 `sub.json`、`ad-rules.txt` 或 `direct-rules.txt` 后：
+修改 `sub.json` 或 `direct-rules.txt` 后：
 
 ```bash
 ./scripts/deploy.sh
@@ -150,7 +144,6 @@ dns:
 worker.js              Worker 入口
 sub.json.template      私有配置模板
 sub.json               本地敏感配置，不提交
-ad-rules.txt           广告规则
 direct-rules.txt       国内直连规则
 streaming-rules.txt    海外加速规则
 scripts/setup.sh       首次部署

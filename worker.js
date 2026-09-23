@@ -1,9 +1,8 @@
 const CONFIG_KEY = 'sub.json';
-const AD_RULES_KEY = 'ad-rules.txt';
 const DIRECT_RULES_KEY = 'direct-rules.txt';
 const STREAMING_RULES_KEY = 'streaming-rules.txt';
+const PUBLIC_AD_RULES_URL = 'https://ghproxy.uufly.org/https://raw.githubusercontent.com/alecthw/chnlist/release/Providers/Custom/Adblock4limbo.yaml';
 let cachedConfig = null;
-let cachedAdRules = null;
 let cachedDirectRules = null;
 let cachedStreamingRules = null;
 
@@ -71,7 +70,7 @@ function buildStaticProxy(node, dialerName, dialerNode, multiServer) {
 	return { name, yaml };
 }
 
-function normalizeAdProviderRule(rule) {
+function normalizeRule(rule) {
 	const value = String(rule || '').trim();
 	if (!value || value.startsWith('#')) return '';
 	const parts = value.split(',').map(part => part.trim()).filter(Boolean);
@@ -120,7 +119,7 @@ function normalizeConfig(source) {
 		'GEOSITE,category-ads-all,REJECT',
 		// Forced direct / LAN
 		'GEOSITE,apple,国内直连',
-		'GEOSITE,category-game-platforms-download,国内直连,no-resolve',
+		'GEOSITE,category-game-platforms-download,国内直连',
 		'GEOSITE,category-pt,国内直连',
 		'GEOSITE,category-public-tracker,国内直连',
 		'GEOSITE,private,DIRECT',
@@ -129,6 +128,8 @@ function normalizeConfig(source) {
 		// Services that want a stable US IP
 		'GEOSITE,paypal,静态IP',
 		'GEOSITE,amazon,静态IP',
+		'GEOSITE,category-finance,静态IP',
+		'GEOSITE,category-social-media-!cn,静态IP',
 		// AI services are heavily rate-limited by account/IP, so route them via the
 		// static residential exit.
 		'GEOSITE,category-ai-!cn,静态IP',
@@ -205,7 +206,7 @@ function renderGroup(group) {
 	return `  - {${parts.join(', ')}}`;
 }
 
-function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], streamingRules = [] } = {}) {
+function renderClash(config, { directRules = [], streamingRules = [] } = {}) {
 	const clash = config?.clash || {};
 	const lines = [
 		'mixed-port: 7890',
@@ -218,19 +219,17 @@ function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], 
 	lines.push('proxies:', ...(clash.proxies || []).map(proxy => proxy.yaml).filter(Boolean), '');
 	const providers = (clash.proxyProviders || []).map(renderProvider).filter(Boolean);
 	if (providers.length > 0) lines.push('proxy-providers:', ...providers, '');
-	if (adRulesUrl) {
-		lines.push(
-			'rule-providers:',
-			'  ad-rules:',
-			'    type: http',
-			'    behavior: classical',
-			'    format: text',
-			`    url: ${quote(adRulesUrl)}`,
-			'    path: ./rule-providers/ad-rules.txt',
-			'    interval: 86400',
-			'',
-		);
-	}
+	lines.push(
+		'rule-providers:',
+		'  ad-rules:',
+		'    type: http',
+		'    behavior: classical',
+		'    format: yaml',
+		`    url: ${quote(PUBLIC_AD_RULES_URL)}`,
+		'    path: ./rule-providers/ad-rules.yaml',
+		'    interval: 86400',
+		'',
+	);
 	lines.push('proxy-groups:', ...(clash.groups || []).map(renderGroup).filter(Boolean), '');
 	// Block QUIC/HTTP3 (UDP 443) so browsers fall back to TCP immediately instead of
 	// hanging on proxies without UDP support (e.g. ss transit links). no-track keeps
@@ -254,21 +253,17 @@ function renderClash(config, { adRules = [], adRulesUrl = '', directRules = [], 
 		// QUIC block must come first so UDP 443 never reaches the proxy chain.
 		'SCRIPT,quic,REJECT,no-track',
 		...nonTerminalRules,
-		...(adRulesUrl ? ['RULE-SET,ad-rules,REJECT'] : adRules.map(rule => `${rule},REJECT`)),
+		'RULE-SET,ad-rules,REJECT',
 		...terminalRules,
 	];
 	lines.push('rules:', ...rules.map(rule => `  - ${rule}`), '');
 	return `${lines.join('\n')}\n`;
 }
 
-function renderAdRules(rules) {
-	return `${rules.join('\n')}\n`;
-}
-
 function normalizeRuleText(raw) {
 	return String(raw || '')
 		.split(/\r?\n/)
-		.map(normalizeAdProviderRule)
+		.map(normalizeRule)
 		.filter(Boolean);
 }
 
@@ -291,14 +286,6 @@ async function loadDirectRules(env) {
 	}
 	cachedDirectRules = rules;
 	return cachedDirectRules;
-}
-
-async function loadAdRules(env) {
-	if (cachedAdRules !== null) return cachedAdRules;
-	if (!env.KV || typeof env.KV.get !== 'function') throw new Error('KV binding is not configured');
-	const raw = await env.KV.get(AD_RULES_KEY);
-	cachedAdRules = normalizeRuleText(raw || '');
-	return cachedAdRules;
 }
 
 async function loadStreamingRules(env) {
@@ -338,21 +325,9 @@ export default {
 				});
 			}
 			const config = await loadConfig(env);
-			if (url.pathname === '/rules/ads.txt') {
-				const adRules = await loadAdRules(env);
-				return new Response(renderAdRules(adRules), {
-					headers: {
-						'content-type': 'text/plain; charset=utf-8',
-						'cache-control': 'public, max-age=300',
-					},
-				});
-			}
 			const directRules = await loadDirectRules(env);
 			const streamingRules = await loadStreamingRules(env);
-			const adRulesUrl = new URL('/rules/ads.txt', request.url);
-			adRulesUrl.searchParams.set('token', url.searchParams.get('token'));
 			return new Response(renderClash(config, {
-				adRulesUrl: adRulesUrl.toString(),
 				directRules,
 				streamingRules,
 			}), {
