@@ -6,3 +6,4 @@ DOMAIN-SUFFIX,posthog.com
 DOMAIN-SUFFIX,iroh.link
 DOMAIN-SUFFIX,ezwave.com
 DOMAIN-SUFFIX,windstream.net
+DOMAIN-KEYWORD,speedtest

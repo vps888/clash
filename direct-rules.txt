@@ -18,7 +18,6 @@ DOMAIN-KEYWORD,toutiao
 DOMAIN-KEYWORD,zijie
 DOMAIN-KEYWORD,rfchost
 DOMAIN-KEYWORD,kfchost
-DOMAIN-KEYWORD,speedtest
 
 # IP 防代理环路（第一跳服务器等）
 IP-CIDR,43.129.78.33/32
